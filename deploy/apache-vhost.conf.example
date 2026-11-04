@@ -1,0 +1,39 @@
+# Apache 2.4 — VirtualHost produksi untuk Peminjaman HME.
+# Ganti: peminjaman.example.com, /var/www/hme-peminjaman, versi/socket PHP-FPM, path sertifikat.
+# Aktifkan modul: rewrite headers ssl proxy_fcgi (atau mod_php).
+
+<VirtualHost *:80>
+    ServerName peminjaman.example.com
+    RewriteEngine On
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName peminjaman.example.com
+    # Document root WAJIB folder public/ — bukan folder induk.
+    DocumentRoot /var/www/hme-peminjaman/public
+
+    SSLEngine on
+    SSLCertificateFile    /etc/letsencrypt/live/peminjaman.example.com/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/peminjaman.example.com/privkey.pem
+
+    <Directory /var/www/hme-peminjaman/public>
+        AllowOverride All          # membaca public/.htaccess (rewrite + blokir berkas sensitif)
+        Require all granted
+        Options -Indexes -MultiViews
+    </Directory>
+
+    # PHP-FPM
+    <FilesMatch "\.php$">
+        SetHandler "proxy:unix:/run/php/php8.2-fpm.sock|fcgi://localhost"
+    </FilesMatch>
+
+    # Batas unggahan foto sedikit di atas UPLOAD_MAX_BYTES (3 MB)
+    LimitRequestBody 4194304
+
+    # Jangan bocorkan versi server
+    # (di httpd.conf / apache2.conf, bukan di vhost)  ServerTokens Prod   ServerSignature Off
+
+    ErrorLog  ${APACHE_LOG_DIR}/hme-error.log
+    CustomLog ${APACHE_LOG_DIR}/hme-access.log combined
+</VirtualHost>

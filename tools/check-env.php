@@ -58,6 +58,24 @@ if ($env === 'production') {
     ((string) Config::get('db.pass')) === '' ? $line('warn', 'DB_PASS kosong', 'wajib diisi di production') : $line('ok', 'DB_PASS terisi');
 }
 
+// Backup (production): peringatkan bila belum pernah / sudah lama tidak ada backup
+if ($env === 'production') {
+    $bdir = (string) Config::get('paths.backups');
+    $zips = glob($bdir . '/hme-backup-*.zip') ?: [];
+    if ($zips === []) {
+        $line('warn', 'Backup', "belum ada di {$bdir} — jadwalkan: php tools/backup.php (lihat docs/12)");
+    } else {
+        sort($zips);
+        $ageH = (time() - (int) filemtime((string) end($zips))) / 3600;
+        $ageH <= 36
+            ? $line('ok', 'Backup terakhir', basename((string) end($zips)) . sprintf(' (%.0f jam lalu)', $ageH))
+            : $line('warn', 'Backup terakhir', sprintf('%.0f jam lalu — cek cron backup', $ageH));
+    }
+    str_starts_with(realpath($bdir) ?: $bdir, HME_ROOT . '/public') || str_starts_with(realpath($bdir) ?: $bdir, HME_ROOT . '/storage')
+        ? $line('warn', 'Lokasi backup', 'di dalam folder aplikasi — sebaiknya set BACKUP_DIR ke luar document root & salin ke penyimpanan lain')
+        : $line('ok', 'Lokasi backup di luar folder aplikasi');
+}
+
 // Database
 try {
     $pdo = Database::connect((string) Config::get('db.name'));

@@ -30,7 +30,7 @@ final class Database
     }
 
     /** Dipakai migrator untuk membuat database (dbName = null → tanpa memilih database). */
-    public static function connect(?string $dbName, bool $withDb = true): PDO
+    public static function connect(?string $dbName, bool $withDb = true, array $extraOptions = []): PDO
     {
         $host = (string) Config::get('db.host');
         $port = (int) Config::get('db.port');
@@ -49,7 +49,7 @@ final class Database
                 PDO::ATTR_EMULATE_PREPARES   => false,
                 PDO::ATTR_STRINGIFY_FETCHES  => false,
                 PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$charset} COLLATE utf8mb4_unicode_ci, time_zone = '{$tz}', sql_mode = '{$sqlMode}'",
-            ]);
+            ] + $extraOptions);
             $iso = strtoupper((string) Config::get('db.isolation', 'READ COMMITTED'));
             if (in_array($iso, ['READ COMMITTED', 'REPEATABLE READ'], true)) {
                 $pdo->exec('SET SESSION TRANSACTION ISOLATION LEVEL ' . $iso);

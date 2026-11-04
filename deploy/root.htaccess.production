@@ -1,0 +1,19 @@
+# ---------------------------------------------------------------------------
+# OPSI B (cPanel/shared hosting yang document root-nya TIDAK bisa diarahkan ke public/).
+# Salin sebagai `.htaccess` di folder induk aplikasi (folder yang berisi app/, public/, storage/ ...).
+# Semua permintaan dialihkan ke public/; app/, storage/, database/, tools/, .env tidak dapat dijangkau.
+# Opsi A (document root = public/) tetap lebih disarankan.
+# ---------------------------------------------------------------------------
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(?!public/)(.*)$ public/$1 [L]
+</IfModule>
+
+# Lapis kedua: tolak akses langsung bila aturan di atas gagal
+<IfModule mod_authz_core.c>
+    <FilesMatch "^\.|\.(env|sql|log|md|lock|json|ini|bak|zip)$">
+        Require all denied
+    </FilesMatch>
+</IfModule>

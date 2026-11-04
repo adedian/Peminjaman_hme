@@ -71,6 +71,8 @@ return [
         'logs'    => Env::get('LOG_DIR', HME_ROOT . '/storage/logs'),
         // UPLOAD_DIR memungkinkan foto disimpan di luar folder aplikasi (disarankan di production)
         'uploads' => Env::get('UPLOAD_DIR', HME_ROOT . '/storage/uploads'),
+        // BACKUP_DIR: tujuan tools/backup.php (disarankan di luar folder web / document root)
+        'backups' => Env::get('BACKUP_DIR', HME_ROOT . '/storage/backups'),
         'views'   => HME_ROOT . '/app/Views',
     ],
 ];

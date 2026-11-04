@@ -6,6 +6,9 @@
 /storage/cache/*
 /storage/imports/*
 /storage/exports/*
+/storage/backups/*
+/dist/
+/storage/maintenance.flag
 !/storage/**/.gitkeep
 /_legacy/
 *.log

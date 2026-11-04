@@ -1,5 +1,14 @@
 # Catatan Perubahan
 
+## 2026-11-04 — Tahap 8: Paket deployment, backup & operasional (selesai di lingkungan uji; hosting produksi belum)
+- `tools/build-package.php`: paket `.zip` bersih + `MANIFEST.sha256`; simulasi instalasi bersih dari paket lulus (migrasi, admin, check-env, health 200).
+- `BackupService` + `tools/backup.php` / `restore.php`: backup database+foto tanpa `mysqldump` (snapshot konsisten, checksum, retensi), pemulihan hanya menerima pernyataan dikenal.
+- **Celah diperbaiki:** pemulihan bisa dibobol lewat multi-statement pada satu baris; kini koneksi memakai `MYSQL_ATTR_MULTI_STATEMENTS=false` (opsi koneksi `Database::connect(..., $extraOptions)`).
+- `MaintenanceService` + `tools/maintenance.php` (pembersihan harian), `tools/maintenance-mode.php` (503 untuk semua kecuali `/api/v1/health`, dipakai saat upgrade/restore).
+- `deploy/`: contoh Apache, Nginx, cron, `.htaccess` Opsi B (cPanel), `php.ini`; `BACKUP_DIR` di `.env`; `check-env.php` memeriksa umur & lokasi backup.
+- Dokumen: `docs/12-tahap-8-deployment.md` (instalasi VPS/cPanel, upgrade, backup, operasional, daftar periksa go-live), `docs/13-panduan-pengguna.md`, `README.md`, laporan uji `docs/test-reports/tahap-8-deployment-dan-operasional.md`.
+- Tes: 5 baru (214 tes non-Apache lulus; 13 tes `http.php` memerlukan Apache XAMPP).
+
 ## 2026-11-04 — Tahap 7: Pengujian menyeluruh (selesai, 307 tes lulus dua kali berturut-turut)
 - Sapuan otomatis atas **seluruh 82 rute** (dibangkitkan dari router): kebijakan akses statis, matriks otorisasi anonim/staff/admin, CSRF, fuzzing query & badan (±2.000 request, tanpa 5xx), XSS tersimpan di semua halaman, production + database mati tanpa kebocoran.
 - Bug diperbaiki: byte NUL pada tanggal menyebabkan 500 (`Validator` aturan `date`, filter tanggal log) — PHP 8 `createFromFormat` melempar `ValueError`.

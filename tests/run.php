@@ -66,7 +66,7 @@ foreach ($args as $a) {
     }
 }
 
-foreach (['core', 'security', 'database', 'auth', 'users', 'items', 'loans', 'pqa', 'reports', 'notify', 'sync', 'migration', 'integrity'] as $c) {
+foreach (['core', 'security', 'database', 'auth', 'users', 'items', 'loans', 'pqa', 'reports', 'notify', 'sync', 'migration', 'integrity', 'backup'] as $c) {
     require __DIR__ . "/cases/{$c}.php";
 }
 if (!$noHttp) {
@@ -81,6 +81,7 @@ if (!$noHttp) {
     require __DIR__ . '/cases/e2e_sync.php';
     require __DIR__ . '/cases/e2e_migration.php';
     require __DIR__ . '/cases/e2e_sweep.php';
+    require __DIR__ . '/cases/e2e_ops.php';
     TestServer::start($testLogDir);
 }
 

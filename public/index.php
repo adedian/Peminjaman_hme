@@ -9,6 +9,7 @@ declare(strict_types=1);
 require dirname(__DIR__) . '/app/bootstrap.php';
 
 use App\Core\ErrorHandler;
+use App\Core\HttpException;
 use App\Core\Logger;
 use App\Core\Request;
 use App\Core\Router;
@@ -32,6 +33,10 @@ require HME_ROOT . '/routes/web.php';
 $request = null;
 try {
     $request = Request::fromGlobals();
+    // Mode pemeliharaan (php tools/maintenance-mode.php on): semua permintaan 503 kecuali /api/v1/health.
+    if (is_file(HME_ROOT . '/storage/maintenance.flag') && $request->path() !== '/api/v1/health') {
+        throw new HttpException(503, 'maintenance', 'Sistem sedang dalam pemeliharaan. Coba lagi beberapa menit lagi.', [], ['Retry-After' => '120']);
+    }
     $response = $router->dispatch($request);
 } catch (Throwable $e) {
     $response = ErrorHandler::toResponse($e, $request);

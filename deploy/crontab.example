@@ -1,0 +1,16 @@
+# Cron Peminjaman HME. Pasang dengan `crontab -e` (user yang sama dengan PHP-FPM / pemilik berkas), atau di cPanel → Cron Jobs.
+# Ganti /var/www/hme-peminjaman dan path php (cPanel: /usr/local/bin/php atau ea-php82).
+APP=/var/www/hme-peminjaman
+PHP=/usr/bin/php
+
+# Backup harian 02:15 (database + foto). Simpan 14 terakhir. Arahkan BACKUP_DIR di .env ke luar document root.
+15 2 * * *   $PHP $APP/tools/backup.php --keep=14 >> $APP/storage/logs/cron-backup.log 2>&1
+
+# Pembersihan harian 03:10 (notifikasi/email lama, sesi basi, feed perubahan)
+10 3 * * *   $PHP $APP/tools/maintenance.php >> $APP/storage/logs/cron-maintenance.log 2>&1
+
+# Cek konsistensi data mingguan, Senin 03:30 (exit 1 + log bila ada pelanggaran)
+30 3 * * 1   $PHP $APP/tools/check-integrity.php >> $APP/storage/logs/cron-integrity.log 2>&1
+
+# Kirim ulang email tertunda tiap 10 menit (opsional; email biasanya sudah terkirim langsung)
+*/10 * * * * $PHP $APP/tools/send-mail.php >> $APP/storage/logs/cron-mail.log 2>&1
