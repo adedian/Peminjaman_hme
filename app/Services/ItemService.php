@@ -209,6 +209,39 @@ final class ItemService
         return self::find($id) ?? [];
     }
 
+    /**
+     * Hapus PERMANEN master barang. Hanya untuk barang yang belum pernah dipakai (tanpa riwayat peminjaman/PQA) —
+     * mis. salah input. Barang berriwayat tidak boleh dihapus agar riwayat & rekap tetap utuh (BR-14); gunakan nonaktifkan.
+     * @param array<string,mixed> $actor
+     */
+    public static function delete(int $id, array $actor, Request $request): void
+    {
+        $row = Database::transaction(function () use ($id, $actor): array {
+            $row = self::lock($id);
+            if (self::hasHistory($id)) {
+                throw new HttpException(409, 'has_history', 'Barang ini sudah memiliki riwayat peminjaman/PQA sehingga tidak dapat dihapus. Nonaktifkan saja agar riwayat tetap tersimpan.');
+            }
+            try {
+                Database::run('DELETE FROM items WHERE id = ?', [$id]);
+            } catch (PDOException $e) {
+                // Pengaman terakhir: ada referensi yang tidak terlihat oleh cek riwayat → tolak, jangan 500.
+                if ((int) ($e->errorInfo[1] ?? 0) === 1451) {
+                    throw new HttpException(409, 'has_history', 'Barang ini masih direferensikan data lain sehingga tidak dapat dihapus. Nonaktifkan saja.');
+                }
+                throw $e;
+            }
+            ChangeFeed::emit('item', $id, 'deleted', (int) $actor['id']);
+            return $row;
+        });
+        // Berkas foto dihapus SETELAH transaksi berhasil (gagal hapus berkas tidak membatalkan penghapusan data).
+        if ($row['photo_path'] !== null) {
+            ImageService::delete((string) $row['photo_path']);
+        }
+        AuditService::log('item.deleted', (int) $actor['id'], 'item', $id,
+            ['code' => $row['code'], 'name' => $row['name'], 'category_id' => (int) $row['category_id'], 'is_pqa' => (int) $row['is_pqa'] === 1, 'photo' => $row['photo_path'] !== null],
+            null, $request);
+    }
+
     // ------------------------------------------------------------------------------------------
 
     /** @param array<string,mixed> $input @return array{code:string,name:string,category_id:int,finance_ref:?string,is_pqa:bool} */

@@ -334,7 +334,7 @@ t('Cakupan audit: setiap jenis aksi tulis yang diuji sejauh ini tercatat di acti
     $expected = [
         'auth.login', 'auth.login_failed', 'auth.password_changed', 'auth.password_change_failed',
         'user.created', 'user.updated', 'user.activated', 'user.deactivated', 'user.password_reset',
-        'item.created', 'item.updated', 'item.activated', 'item.deactivated',
+        'item.created', 'item.updated', 'item.activated', 'item.deactivated', 'item.deleted',
         'request.submitted', 'loan.approved', 'loan.rejected', 'loan.cancelled', 'loan.returned', 'loan.swapped',
         'pqa.submitted', 'pqa.approved', 'pqa.rejected', 'pqa.extension_requested', 'pqa.extension_approved', 'pqa.extension_rejected',
         'pqa.removal_requested', 'pqa.removal_approved', 'pqa.removal_rejected',

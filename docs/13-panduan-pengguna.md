@@ -53,7 +53,7 @@ Daftar unit PQA yang dipasang di lokasi klien — **terlihat oleh semua staff**.
 Setujui/tolak pemasangan, tambah waktu, dan pencabutan dari halaman **Tracker PQA**. Menyetujui pencabut otomatis menutup permintaan tambah waktu yang masih menggantung.
 
 ### 4.3 Barang
-**Barang** → *Tambah* (ID/kode unik, nama, kategori, foto opsional, centang *Unit PQA* bila perlu). *Ubah* kapan saja; ID terkunci bila barang sudah punya riwayat. **Nonaktifkan** menyembunyikan barang dari form pinjam tanpa menghapus riwayat — ditolak bila barang sedang dipinjam/dipasang. Foto otomatis diperkecil; maksimal 3 MB.
+**Barang** → *Tambah* (ID/kode unik, nama, kategori, foto opsional, centang *Unit PQA* bila perlu). *Ubah* kapan saja; ID terkunci bila barang sudah punya riwayat. **Nonaktifkan** menyembunyikan barang dari form pinjam tanpa menghapus riwayat — ditolak bila barang sedang dipinjam/dipasang. **Hapus permanen** hanya untuk barang yang belum pernah dipakai (mis. salah input); barang berriwayat tidak bisa dihapus, nonaktifkan saja. Foto otomatis diperkecil; maksimal 3 MB.
 
 ### 4.4 Rekap & laporan Excel
 **Rekap** → pilih bulan, tahun, rentang tanggal, atau semua data. Menampilkan total, status, peringkat alat, dan daftar aktif. **Unduh Excel** menghasilkan dua sheet: *Laporan Stok* dan *Transaksi Periode* (mengikuti filter). Unduhan tercatat di log aktivitas.

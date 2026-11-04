@@ -53,6 +53,14 @@
       note.hidden = false;
       note.textContent = 'Barang ini sedang dipinjam atau memiliki pengajuan/pemasangan aktif sehingga belum dapat dinonaktifkan.';
     }
+    // Hapus permanen hanya untuk barang yang belum pernah dipakai (tanpa riwayat); selain itu cukup dinonaktifkan.
+    var d = $('act-delete');
+    d.disabled = !!current.has_history;
+    d.textContent = 'Hapus permanen';
+    if (current.has_history) {
+      d.title = 'Barang berriwayat tidak dapat dihapus; nonaktifkan saja.';
+      if (note.hidden) { note.hidden = false; note.textContent = 'Barang ini sudah memiliki riwayat transaksi sehingga tidak dapat dihapus permanen. Gunakan Nonaktifkan agar riwayat tetap tersimpan.'; }
+    } else { d.removeAttribute('title'); }
     ui.openSheet('sheet-actions');
   });
 
@@ -252,6 +260,16 @@
         }).catch(fail);
       });
     }
+  });
+
+  $('act-delete').addEventListener('click', function () {
+    var it = current;
+    if (it.has_history) { return; }
+    ask('Hapus permanen ' + it.name + '?', 'Barang (' + it.code + ') dan fotonya dihapus selamanya dan tidak dapat dikembalikan. Hanya dilakukan untuk barang yang salah input; barang yang pernah dipakai tidak bisa dihapus.', 'Ya, hapus permanen', function () {
+      api.post('/items/' + it.id + '/delete').then(function () {
+        ui.flashNext('Barang dihapus', it.name, 'ok'); window.location.reload();
+      }).catch(fail);
+    });
   });
 
   // Realtime: status/ketersediaan barang berubah (dipinjam, dikembalikan, diubah admin lain) → kartu diganti versi terbaru

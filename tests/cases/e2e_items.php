@@ -59,6 +59,7 @@ t('Staff + CSRF benar + foto valid ke SEMUA endpoint barang → 403; tidak ada b
         $s->multipart('/items', ['code' => iCode('HAK'), 'name' => 'Peretas', 'category_id' => '1'], ['photo' => [$img, 'image/jpeg', 'x.jpg']]),
         $s->multipart("/items/{$item['id']}", ['code' => 'DIRETAS', 'name' => 'Diretas', 'category_id' => '1'], ['photo' => [$img, 'image/jpeg', 'x.jpg']]),
         $s->api('POST', "/items/{$item['id']}/deactivate"), $s->api('POST', "/items/{$item['id']}/activate"),
+        $s->api('POST', "/items/{$item['id']}/delete"),
     ];
     foreach ($resp as $i => $r) {
         eq(403, $r['status'], "endpoint #{$i}");
@@ -218,6 +219,32 @@ t('Nonaktifkan lewat API: 409 item_in_use bila sedang dipakai; sukses bila tidak
     eq(true, $a->api('POST', "/items/{$free['id']}/activate")['json']['data']['is_active']);
     eq(404, $a->api('POST', '/items/99999999/deactivate')['status']);
     eq(404, $a->api('GET', '/items/99999999')['status']);
+});
+
+t('Hapus lewat API: staff 403; anonim 401; tanpa CSRF 403; berriwayat 409; bersih 200 lalu 404; halaman memuat tombol hapus', function () {
+    e2eReset();
+    $a = e2eAdmin();
+    $used = e2eNewItem($a);
+    mkLoan($used['id'], 'returned');
+    $r = $a->api('POST', "/items/{$used['id']}/delete");
+    eq(409, $r['status']); eq('has_history', $r['json']['error']['code']);
+    eq(200, $a->api('GET', "/items/{$used['id']}")['status'], 'barang berriwayat tetap ada');
+
+    $clean = e2eNewItem($a);
+    eq(401, (new Client())->api('POST', "/items/{$clean['id']}/delete")['status']);
+    eq(403, e2eLogin('e_staff')->api('POST', "/items/{$clean['id']}/delete")['status']);
+    eq(200, $a->api('GET', "/items/{$clean['id']}")['status'], 'staff/anonim tidak menghapus');
+    $noCsrf = $a->request('POST', "/api/v1/items/{$clean['id']}/delete", null, null, ['Accept' => 'application/json']);
+    eq(403, $noCsrf['status'], 'tanpa token CSRF');
+
+    $ok = $a->api('POST', "/items/{$clean['id']}/delete");
+    eq(200, $ok['status']); eq(true, $ok['json']['data']['deleted']);
+    eq(404, $a->api('GET', "/items/{$clean['id']}")['status']);
+    eq(404, $a->api('POST', "/items/{$clean['id']}/delete")['status']);
+
+    $page = $a->request('GET', '/items');
+    eq(200, $page['status']);
+    contains('id="act-delete"', $page['body']);
 });
 
 t('Mass-assignment ditolak: master_status/is_active/id/photo_path dari input diabaikan', function () {

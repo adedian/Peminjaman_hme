@@ -131,6 +131,7 @@ $router->group(['prefix' => '/api/v1'], static function (Router $r): void {
                 $r->post('/{id:\d+}', [ItemController::class, 'update']);
                 $r->post('/{id:\d+}/activate', [ItemController::class, 'activate']);
                 $r->post('/{id:\d+}/deactivate', [ItemController::class, 'deactivate']);
+                $r->post('/{id:\d+}/delete', [ItemController::class, 'destroy']);
             });
         });
     });

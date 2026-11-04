@@ -57,3 +57,6 @@ Di sisi klien (`items.js`), foto diperkecil via canvas (maks. 1600 px, JPEG 85%)
 
 ## 7. Berikutnya
 4d Peminjaman (pengajuan multi-barang, setujui/tolak/kembalikan, anti double-booking di service + DB, ketersediaan barang) — modul inti.
+
+## Tambahan: hapus permanen
+Selain nonaktifkan (Q3), admin dapat **menghapus permanen** barang yang belum pernah dipakai (tanpa riwayat peminjaman/PQA) lewat `POST /api/v1/items/{id}/delete`. Barang berriwayat ditolak (`409 has_history`) — gunakan nonaktifkan. Foto ikut terhapus; aksi tercatat sebagai `item.deleted`.

@@ -377,6 +377,50 @@ t('Boleh bila hanya riwayat (returned/rejected/cancelled/Dicabut/Ditolak); aktif
 });
 
 // ---------------------------------------------------------------------------
+section('Barang — hapus permanen');
+
+t('Hapus: barang tanpa riwayat terhapus (data + foto + audit + change feed); berriwayat/dipakai ditolak 409 dan tetap utuh; 404', function () {
+    ImageService::allowPlainFilesForTests(true);
+    $c0 = (int) Database::value('SELECT COALESCE(MAX(id),0) FROM change_events');
+    $free = iMake(['name' => 'Salah Input'], upl(imgBytes('jpeg', 400, 300), 'f.jpg'));
+    $photo = (string) Database::value('SELECT photo_path FROM items WHERE id = ?', [$free['id']]);
+    ok($photo !== '' && is_file(ImageService::path($photo)) && is_file(ImageService::path(ImageService::thumbName($photo))));
+    ItemService::delete($free['id'], iActor(), ureq());
+    eq(0, (int) Database::value('SELECT COUNT(*) FROM items WHERE id = ?', [$free['id']]));
+    ok(!is_file(ImageService::path($photo)) && !is_file(ImageService::path(ImageService::thumbName($photo))), 'foto & thumbnail ikut terhapus');
+    eq(null, ItemService::find($free['id']));
+    eq(1, (int) Database::value("SELECT COUNT(*) FROM activity_logs WHERE action = 'item.deleted' AND entity_id = ?", [(string) $free['id']]));
+    contains('Salah Input', (string) Database::value("SELECT before_json FROM activity_logs WHERE action = 'item.deleted' AND entity_id = ?", [(string) $free['id']]));
+    eq(1, (int) Database::value("SELECT COUNT(*) FROM change_events WHERE id > ? AND entity_type = 'item' AND entity_id = ? AND action = 'deleted'", [$c0, (string) $free['id']]));
+    eq(404, iErr(fn() => ItemService::delete($free['id'], iActor(), ureq()))->status(), 'sudah terhapus → 404');
+    eq(404, iErr(fn() => ItemService::delete(99999999, iActor(), ureq()))->status());
+
+    // Berriwayat (apa pun statusnya) → ditolak, data utuh
+    foreach (['pending', 'approved', 'returned', 'rejected', 'cancelled'] as $st) {
+        $it = iMake();
+        mkLoan($it['id'], $st);
+        eq('has_history', iErr(fn() => ItemService::delete($it['id'], iActor(), ureq()))->errorCode(), "loan {$st}");
+        eq(409, iErr(fn() => ItemService::delete($it['id'], iActor(), ureq()))->status());
+        ok(ItemService::find($it['id']) !== null, "barang utuh ({$st})");
+    }
+    foreach (['Pending', 'Terpasang', 'Dicabut', 'Ditolak'] as $st) {
+        $it = iMake(['is_pqa' => '1']);
+        mkPqa($it['id'], $st);
+        eq('has_history', iErr(fn() => ItemService::delete($it['id'], iActor(), ureq()))->errorCode(), "pqa {$st}");
+        ok(ItemService::find($it['id']) !== null);
+    }
+    // Nonaktif tanpa riwayat tetap boleh dihapus
+    $off = iMake();
+    ItemService::setActive($off['id'], false, iActor(), ureq());
+    ItemService::delete($off['id'], iActor(), ureq());
+    eq(null, ItemService::find($off['id']));
+    // Kode bekas barang terhapus dapat dipakai lagi
+    $again = iMake(['code' => $free['code']]);
+    eq($free['code'], $again['code']);
+    ItemService::delete($again['id'], iActor(), ureq());
+});
+
+// ---------------------------------------------------------------------------
 section('Barang — daftar, pencarian, filter');
 
 t('Daftar: filter teks (nama/ID/ref), kategori, status, aktif; wildcard % dan _ dianggap huruf biasa', function () {

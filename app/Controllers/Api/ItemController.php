@@ -62,4 +62,10 @@ final class ItemController
     {
         return Response::ok(ItemService::setActive((int) $params['id'], false, $request->user() ?? [], $request));
     }
+
+    public function destroy(Request $request, array $params): Response
+    {
+        ItemService::delete((int) $params['id'], $request->user() ?? [], $request);
+        return Response::ok(['deleted' => true]);
+    }
 }

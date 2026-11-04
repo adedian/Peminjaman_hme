@@ -1,5 +1,13 @@
 # Catatan Perubahan
 
+## 2026-11-04 — Hapus permanen master barang
+- `ItemService::delete` + `POST /api/v1/items/{id}/delete` (admin) + tombol **Hapus permanen** di menu aksi barang.
+- **Aturan:** hanya barang tanpa riwayat peminjaman/PQA (mis. salah input). Barang berriwayat ditolak `409 has_history` dan tombolnya nonaktif dengan penjelasan — gunakan Nonaktifkan, agar riwayat & rekap tetap utuh (BR-14). Foto & thumbnail ikut dihapus setelah transaksi berhasil; tercatat di audit log (`item.deleted`, memuat kode/nama) dan change feed; kode bekas barang terhapus bisa dipakai lagi.
+- Tes: 1 service + 1 E2E baru (staff 403, anonim 401, tanpa CSRF 403, berriwayat 409, bersih 200→404); diperiksa di browser.
+
+## 2026-11-04 — Tampilan desktop: konten utama rata tengah
+- `.main` di layar ≥ 1024px kini `margin: 0 auto` (sebelumnya menempel ke sidebar).
+
 ## 2026-11-04 — Tahap 8: Paket deployment, backup & operasional (selesai di lingkungan uji; hosting produksi belum)
 - `tools/build-package.php`: paket `.zip` bersih + `MANIFEST.sha256`; simulasi instalasi bersih dari paket lulus (migrasi, admin, check-env, health 200).
 - `BackupService` + `tools/backup.php` / `restore.php`: backup database+foto tanpa `mysqldump` (snapshot konsisten, checksum, retensi), pemulihan hanya menerima pernyataan dikenal.
