@@ -1,0 +1,2 @@
+# Defense in depth: storage/ tidak pernah boleh dilayani web
+Require all denied

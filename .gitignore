@@ -1,0 +1,11 @@
+/.env
+/vendor/
+/storage/logs/*
+/storage/sessions/*
+/storage/uploads/*
+/storage/cache/*
+/storage/imports/*
+/storage/exports/*
+!/storage/**/.gitkeep
+/_legacy/
+*.log

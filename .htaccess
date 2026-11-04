@@ -1,0 +1,13 @@
+# ---------------------------------------------------------------------------
+# .htaccess ROOT — hanya untuk XAMPP/lokal (aplikasi dibuka di /Peminjaman_hme/).
+# Di hosting: arahkan document root domain ke folder public/ dan file ini boleh dihapus.
+# ---------------------------------------------------------------------------
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Folder acuan desain statis (hanya dev; JANGAN di-deploy ke produksi)
+    RewriteRule ^design/ - [L]
+    # Semua yang lain dilayani dari public/ — app/, storage/, database/, tests/, docs/, .env tidak bisa dijangkau
+    RewriteRule ^(?!public/)(.*)$ public/$1 [L]
+</IfModule>

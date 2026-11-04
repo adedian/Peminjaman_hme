@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Galeri Komponen — Design System HME</title>
+<link rel="icon" href="assets/img/logo-hme.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/components.css">
+<style>
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: var(--s-3); }
+  .sw { border-radius: var(--r-sm); overflow: hidden; background: var(--surface); box-shadow: var(--shadow-sm); }
+  .sw i { display: block; height: 52px; border-bottom: 1px solid var(--line); }
+  .sw span { display: block; padding: 6px 10px; font-size: 11px; color: var(--ink-2); line-height: 1.3; }
+  .sw b { display: block; color: var(--ink); font-size: 12px; }
+  .stack { display: grid; gap: var(--s-3); }
+  .wrap { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; }
+  .darkbox { background: var(--dark); color: var(--on-dark); border-radius: var(--r-md); padding: var(--s-4); }
+  .type-row { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); border-bottom: 1px solid var(--line); padding: var(--s-2) 0; }
+  .type-row small { color: var(--muted); font-size: var(--fs-xs); }
+</style>
+</head>
+<body>
+<div class="app">
+<main class="main" style="max-width:860px;margin:0 auto">
+
+  <header class="topbar">
+    <img class="logo" src="assets/img/logo-hme.png" alt="HME">
+    <div class="who"><small>Design System</small><strong>Galeri Komponen v1</strong></div>
+    <button class="icon-btn" data-theme-toggle aria-label="Ganti tema terang/gelap"><i data-i="moon"></i></button>
+  </header>
+
+  <section class="stack"><div class="section-head"><h2>Warna</h2></div>
+    <div class="swatches">
+      <div class="sw"><i style="background:var(--accent)"></i><span><b>accent</b>#F26B1D</span></div>
+      <div class="sw"><i style="background:var(--accent-soft)"></i><span><b>accent-soft</b>latar chip aktif</span></div>
+      <div class="sw"><i style="background:var(--ink)"></i><span><b>ink</b>#141414</span></div>
+      <div class="sw"><i style="background:var(--bg)"></i><span><b>bg</b>#F2F2F2</span></div>
+      <div class="sw"><i style="background:var(--surface)"></i><span><b>surface</b>#FFFFFF</span></div>
+      <div class="sw"><i style="background:var(--dark)"></i><span><b>dark</b>nav, sheet, sidebar</span></div>
+      <div class="sw"><i style="background:var(--success)"></i><span><b>success</b>#1F9D55</span></div>
+      <div class="sw"><i style="background:var(--warning)"></i><span><b>warning</b>#B7791F</span></div>
+      <div class="sw"><i style="background:var(--danger)"></i><span><b>danger</b>#E5484D</span></div>
+      <div class="sw"><i style="background:var(--info)"></i><span><b>info</b>#2F6FDE</span></div>
+    </div>
+  </section>
+
+  <section class="stack"><div class="section-head"><h2>Tipografi — Inter</h2></div>
+    <div class="card">
+      <div class="type-row"><span style="font-size:var(--fs-xl);font-weight:700">Judul 28 / Bold</span><small>--fs-xl</small></div>
+      <div class="type-row"><span style="font-size:var(--fs-lg);font-weight:700">Subjudul 20 / Bold</span><small>--fs-lg</small></div>
+      <div class="type-row"><span style="font-size:var(--fs-md);font-weight:600">Isi & input 16 / Semibold</span><small>--fs-md</small></div>
+      <div class="type-row"><span style="font-size:var(--fs-sm)">Teks utama 14 / Regular</span><small>--fs-sm</small></div>
+      <div class="type-row"><span style="font-size:var(--fs-xs);color:var(--muted)">Keterangan 12 / Regular</span><small>--fs-xs</small></div>
+      <div class="type-row"><span class="num" style="font-weight:700">HME-1793672399509 · 0123456789</span><small>angka tabular</small></div>
+    </div>
+  </section>
+
+  <section class="stack"><div class="section-head"><h2>Chip status</h2></div>
+    <div class="card wrap">
+      <span class="chip pending">Menunggu</span><span class="chip active">Aktif</span><span class="chip done">Selesai</span>
+      <span class="chip rejected">Ditolak</span><span class="chip cancelled">Dibatalkan</span><span class="chip info">Terpasang</span>
+    </div>
+  </section>
+
+  <section class="stack"><div class="section-head"><h2>Tombol</h2></div>
+    <div class="card stack">
+      <div class="wrap"><button class="btn primary">Utama</button><button class="btn">Gelap</button><button class="btn ghost">Sekunder</button><button class="btn success">Setujui</button><button class="btn danger">Tolak</button><button class="btn primary" disabled>Nonaktif</button></div>
+      <div class="wrap"><button class="icon-btn" aria-label="Notifikasi"><i data-i="bell"></i></button><button class="icon-btn dark" aria-label="Filter"><i data-i="filter"></i></button><button class="round-btn ok" aria-label="Setujui"><i data-i="check"></i></button><button class="round-btn no" aria-label="Tolak"><i data-i="x"></i></button></div>
+      <span class="mockup-tag">Semua target sentuh ≥ 44 px</span>
+    </div>
+  </section>
+
+  <section class="stack"><div class="section-head"><h2>Form & validasi</h2></div>
+    <div class="card stack">
+      <div class="field"><label for="f1">Lokasi tujuan <span class="req">*</span></label><input class="input" id="f1" placeholder="Nama proyek atau klien" autocomplete="off"></div>
+      <div class="field invalid"><label for="f2">Target waktu pasang (hari) <span class="req">*</span></label><input class="input" id="f2" type="number" inputmode="numeric" value="0" aria-invalid="true" aria-describedby="f2h"><span class="hint" id="f2h">Isi lebih dari 0 hari.</span></div>
+      <div class="field"><label for="f3">Kategori</label><select class="select" id="f3"><option>Alat Ukur</option><option>Alat Berat</option><option>Drone</option><option>Toolkit</option><option>Solar Panel</option><option>Lain-lain</option></select></div>
+      <div class="field"><label for="f4">Keterangan</label><textarea class="textarea" id="f4" placeholder="Informasi peruntukan alat"></textarea><span class="hint">Opsional</span></div>
+      <button class="btn primary block" data-toast="Tersimpan" data-toast-sub="Perubahan sudah disimpan" data-toast-kind="ok">Simpan</button>
+    </div>
+  </section>
+
+  <section class="stack"><div class="section-head"><h2>Stepper</h2></div>
+    <div class="card stack">
+      <div><div class="stepper"><span class="step current"><i data-i="clock" style="width:12px;height:12px"></i></span><span class="link-dots"></span><span class="step"></span><span class="link-dots"></span><span class="step"></span></div><div class="step-labels"><span class="on">Diajukan</span><span>Dipinjam</span><span>Dikembalikan</span></div></div>
+      <div><div class="stepper"><span class="step done"><i data-i="check"></i></span><span class="link-dots done"></span><span class="step current"><i data-i="box" style="width:12px;height:12px"></i></span><span class="link-dots"></span><span class="step"></span></div><div class="step-labels"><span>Diajukan</span><span class="on">Dipinjam</span><span>Dikembalikan</span></div></div>
+      <div><div class="stepper"><span class="step done"><i data-i="check"></i></span><span class="link-dots done"></span><span class="step done"><i data-i="check"></i></span><span class="link-dots done"></span><span class="step done"><i data-i="check"></i></span></div><div class="step-labels"><span>Diajukan</span><span>Dipinjam</span><span class="on">Dikembalikan</span></div></div>
+      <div class="darkbox"><div class="stepper on-dark"><span class="step done"><i data-i="check"></i></span><span class="link-dots done"></span><span class="step current"><i data-i="bolt" style="width:12px;height:12px"></i></span><span class="link-dots"></span><span class="step"></span></div><div class="step-labels on-dark"><span>Diajukan</span><span class="on">Terpasang · 9/14 hari</span><span>Dicabut</span></div></div>
+    </div>
+  </section>
+
+  <section class="stack"><div class="section-head"><h2>Kartu PQA (tracker)</h2></div>
+    <article class="card loan-card" style="cursor:default">
+      <div class="loan-top">
+        <span class="thumb sq"><img src="assets/img/HME-PQA-02.jpg" alt="PQA Baru"></span>
+        <div class="meta"><div class="id">PQA Baru</div><div class="sub num">HME-PQA-02 · PT SGS</div></div>
+        <span class="chip info">Terpasang</span>
+      </div>
+      <div><div class="stepper"><span class="step done"><i data-i="check"></i></span><span class="link-dots done"></span><span class="step current"><i data-i="bolt" style="width:12px;height:12px"></i></span><span class="link-dots"></span><span class="step"></span></div><div class="step-labels"><span>Diajukan</span><span class="on">Terpasang</span><span>Dicabut</span></div></div>
+      <div class="facts"><div><small>Aktual / target</small><strong class="num">9 / 14 hari</strong></div><div><small>PPIC</small><strong>Naufal</strong></div></div>
+      <div class="btn-row"><button class="btn ghost">+ Tambah waktu</button><button class="btn danger">Request cabut</button></div>
+    </article>
+  </section>
+
+  <section class="stack"><div class="section-head"><h2>Memuat, kosong, notifikasi</h2></div>
+    <div class="card"><div class="loan-top"><span class="thumb skeleton"></span><div class="meta" style="display:grid;gap:8px"><div class="skeleton sk-line" style="width:60%"></div><div class="skeleton sk-line" style="width:40%"></div></div></div></div>
+    <div class="card"><div class="empty"><span class="e-ico"><i data-i="inbox"></i></span><strong>Tidak ada permohonan baru</strong><p>Pengajuan dari staff akan muncul di sini secara otomatis.</p></div></div>
+    <div class="wrap"><button class="btn" data-toast="Pengajuan baru dari Vega" data-toast-sub="2 barang · Survey Bu Glen">Toast info</button><button class="btn primary" data-toast="Berhasil disetujui" data-toast-sub="Barang berstatus Dipinjam" data-toast-kind="ok">Toast sukses</button></div>
+  </section>
+
+  <section class="stack"><div class="section-head"><h2>Sheet & konfirmasi</h2></div>
+    <div class="wrap"><button class="btn" data-open-sheet="sheet-confirm">Dialog konfirmasi</button></div>
+    <span class="mockup-tag">HP: sheet dari bawah · Desktop: panel kanan</span>
+  </section>
+
+  <p style="text-align:center;color:var(--muted);font-size:var(--fs-xs)">Lihat halaman: <a class="link" href="staff-home.html" style="text-decoration:underline">Beranda staff</a> · <a class="link" href="admin-requests.html" style="text-decoration:underline">Permohonan admin</a> · <a class="link" href="admin-requests.html#detail" style="text-decoration:underline">Detail sheet</a></p>
+</main>
+</div>
+
+<div class="scrim" aria-hidden="true"></div>
+<section class="sheet" id="sheet-confirm" role="alertdialog" aria-modal="true" aria-labelledby="c-t" aria-hidden="true">
+  <div class="grab"></div>
+  <div class="sheet-inner">
+    <div><div class="big" id="c-t" style="font-size:var(--fs-lg);font-weight:700">Konfirmasi pengembalian?</div><p style="color:var(--on-dark-muted);margin-top:6px">Pastikan barang sudah kembali secara fisik ke gudang HME. Status barang akan menjadi Tersedia.</p></div>
+    <div class="btn-row"><button class="btn" style="background:var(--dark-2);color:var(--on-dark)" data-close-sheet>Batal</button><button class="btn primary" data-toast="Pengembalian dikonfirmasi" data-toast-kind="ok" data-close-sheet>Ya, sudah kembali</button></div>
+  </div>
+</section>
+<script src="js/ui.js"></script>
+</body>
+</html>

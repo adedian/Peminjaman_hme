@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Beranda Staff — Mockup</title>
+<meta name="theme-color" content="#F2F2F2">
+<link rel="icon" href="assets/img/logo-hme.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- Sidebar desktop -->
+  <aside class="sidebar only-desktop" aria-label="Navigasi utama">
+    <div class="brand"><img src="assets/img/logo-hme.png" alt=""><div><b>Peminjaman HME</b><span>PT Hexa Multi Energi</span></div></div>
+    <nav>
+      <a href="staff-home.html" aria-current="page"><i data-i="home"></i>Beranda</a>
+      <a href="#"><i data-i="history"></i>Riwayat</a>
+      <a href="#"><i data-i="plus"></i>Pinjam Baru</a>
+      <a href="#"><i data-i="bolt"></i>Tracker PQA</a>
+      <a href="#"><i data-i="user"></i>Profil</a>
+    </nav>
+    <div class="me">
+      <button class="btn ghost block" data-theme-toggle style="background:var(--dark-2);color:var(--on-dark)"><i data-i="moon"></i>Ganti tema</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- Top bar -->
+    <header class="topbar">
+      <img class="logo only-mobile" src="assets/img/logo-hme.png" alt="HME">
+      <div class="who"><small>Halo, selamat pagi</small><strong>Naufal</strong></div>
+      <button class="icon-btn" aria-label="Notifikasi, 1 baru" data-toast="Pengajuan disetujui" data-toast-sub="Helm Putih 3 & 4 siap dibawa" data-toast-kind="ok"><i data-i="bell"></i><span class="dot"></span></button>
+    </header>
+
+    <!-- Pencarian -->
+    <div class="search-row">
+      <label class="search"><i data-i="search"></i><span class="sr-only">Cari</span><input type="search" placeholder="Cari barang atau transaksi"></label>
+      <button class="icon-btn dark" aria-label="Pindai kode barang"><i data-i="scan"></i></button>
+    </div>
+
+    <!-- Aksi cepat -->
+    <section class="quick" aria-label="Aksi cepat">
+      <button class="quick-card primary"><strong>Pinjam Barang</strong><i data-i="box" class="q-ico"></i><span class="chip on-dark" style="align-self:flex-start;background:rgb(255 255 255 / .22);color:#fff">17 tersedia</span></button>
+      <button class="quick-card"><strong>Pasang PQA</strong><i data-i="bolt" class="q-ico"></i><span class="chip info" style="align-self:flex-start">2 unit</span></button>
+    </section>
+
+    <!-- Pinjaman aktif -->
+    <section aria-labelledby="h-aktif">
+      <div class="section-head"><h2 id="h-aktif">Pinjaman Aktif</h2><a class="link" href="#">Lihat semua</a></div>
+      <article class="card loan-card" style="margin-top:var(--s-3)" data-open-sheet="sheet-detail" tabindex="0" role="button" aria-label="Buka detail HME-1793672399509">
+        <div class="loan-top">
+          <div class="meta">
+            <div class="id num">HME-1793672399509</div>
+            <div class="sub with-stack">
+              <span class="items-stack"><span class="thumb"><i data-i="helmet"></i></span><span class="thumb"><i data-i="helmet"></i></span></span>
+              <span style="overflow:hidden;text-overflow:ellipsis">Helm Putih 3 + 1 barang lain</span>
+            </div>
+          </div>
+          <span class="chip active">Aktif</span>
+        </div>
+        <div>
+          <div class="stepper" aria-label="Tahap: Aktif (dipinjam)">
+            <span class="step done"><i data-i="check"></i></span><span class="link-dots done"></span>
+            <span class="step current"><i data-i="box" style="width:12px;height:12px"></i></span><span class="link-dots"></span>
+            <span class="step"></span>
+          </div>
+          <div class="step-labels"><span>Diajukan</span><span class="on">Dipinjam</span><span>Dikembalikan</span></div>
+        </div>
+        <div class="facts">
+          <div><small>Dibawa</small><strong class="num">03 Nov 2026</strong></div>
+          <div><small>Tujuan</small><strong>Project pak wali</strong></div>
+        </div>
+      </article>
+    </section>
+
+    <!-- Riwayat terbaru -->
+    <section aria-labelledby="h-riwayat">
+      <div class="section-head"><h2 id="h-riwayat">Riwayat Terbaru</h2><a class="link" href="#">Lihat semua</a></div>
+      <div class="list" style="margin-top:var(--s-3)">
+        <button class="row">
+          <span class="thumb sq"><img src="assets/img/HME-JKSD-01.jpg" alt="Jangka Sorong Digital"></span>
+          <span class="meta"><span class="title num" style="display:block">HME-1786412112264</span><span class="sub" style="display:block">Jangka Sorong Digital +4 · Unggul</span></span>
+          <span class="chip done">Selesai</span>
+        </button>
+        <button class="row">
+          <span class="thumb sq"><i data-i="ruler"></i></span>
+          <span class="meta"><span class="title num" style="display:block">HME-1787881227827</span><span class="sub" style="display:block">Meteran Biasa (Oren) +1 · Project pak julius</span></span>
+          <span class="chip done">Selesai</span>
+        </button>
+        <button class="row">
+          <span class="thumb sq"><i data-i="ruler"></i></span>
+          <span class="meta"><span class="title num" style="display:block">HME-1787279069436</span><span class="sub" style="display:block">Meteran Biasa (Kuning) · Pak wali</span></span>
+          <span class="chip done">Selesai</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- State kosong & memuat (contoh komponen) -->
+    <section aria-labelledby="h-state" class="only-desktop">
+      <div class="section-head"><h2 id="h-state">Contoh status antarmuka</h2></div>
+      <div class="grid-2" style="margin-top:var(--s-3)">
+        <div class="card"><div class="loan-top"><span class="thumb skeleton"></span><div class="meta" style="display:grid;gap:8px"><div class="skeleton sk-line" style="width:60%"></div><div class="skeleton sk-line" style="width:40%"></div></div></div></div>
+        <div class="card"><div class="empty"><span class="e-ico"><i data-i="inbox"></i></span><strong>Belum ada riwayat</strong><p>Peminjaman yang Anda ajukan akan muncul di sini.</p></div></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Bottom nav HP/tablet -->
+  <nav class="bottom-nav" aria-label="Navigasi utama">
+    <a href="staff-home.html" aria-current="page"><i data-i="home"></i>Beranda</a>
+    <a href="#"><i data-i="history"></i>Riwayat</a>
+    <button class="fab" aria-label="Pinjam barang baru"><i data-i="plus"></i></button>
+    <a href="#"><i data-i="bolt"></i>PQA</a>
+    <a href="#"><i data-i="user"></i>Profil</a>
+  </nav>
+</div>
+
+<!-- Sheet detail (staff) -->
+<div class="scrim" aria-hidden="true"></div>
+<section class="sheet" id="sheet-detail" role="dialog" aria-modal="true" aria-labelledby="sd-title" aria-hidden="true">
+  <div class="grab"></div>
+  <div class="sheet-inner">
+    <div class="head">
+      <div><small>ID Pinjam</small><div class="big num" id="sd-title">HME-1793672399509</div></div>
+      <span class="chip active" style="background:var(--accent);color:#fff">Aktif</span>
+    </div>
+    <div>
+      <div class="stepper on-dark">
+        <span class="step done"><i data-i="check"></i></span><span class="link-dots done"></span>
+        <span class="step current"><i data-i="box" style="width:12px;height:12px"></i></span><span class="link-dots"></span>
+        <span class="step"></span>
+      </div>
+      <div class="step-labels on-dark"><span>Diajukan</span><span class="on">Dipinjam</span><span>Dikembalikan</span></div>
+    </div>
+    <hr>
+    <div class="kv">
+      <div><small>Dibawa</small><strong class="num">03 Nov 2026, 09.19</strong></div>
+      <div><small>Dikembalikan</small><strong>Belum</strong></div>
+      <div><small>Peminjam</small><strong>Naufal</strong></div>
+      <div><small>Tim</small><strong>—</strong></div>
+      <div class="full"><small>Lokasi tujuan</small><strong>Project pak wali</strong></div>
+      <div class="full"><small>Keterangan</small><strong>Tang potong , alat pahat</strong></div>
+    </div>
+    <hr>
+    <div style="display:grid;gap:var(--s-2)">
+      <div class="item-line"><span class="thumb sq"><i data-i="helmet"></i></span><div><b>Helm Putih 3</b><span class="num">HME-HLMP-03</span></div></div>
+      <div class="item-line"><span class="thumb sq"><i data-i="helmet"></i></span><div><b>Helm Putih 4</b><span class="num">HME-HLMP-04</span></div></div>
+    </div>
+    <button class="btn primary block" data-toast="Konfirmasi pengembalian dikirim" data-toast-sub="Barang kembali berstatus Tersedia" data-toast-kind="ok" data-close-sheet>Konfirmasi Pengembalian Gudang</button>
+    <button class="btn block" style="background:var(--dark-2);color:var(--on-dark)" data-close-sheet>Tutup</button>
+  </div>
+</section>
+
+<script src="js/ui.js"></script>
+</body>
+</html>

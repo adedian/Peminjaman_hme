@@ -1,0 +1,128 @@
+/* ==========================================================================
+   HME Peminjaman — Design Tokens
+   Mobile-first. Semua nilai visual berasal dari sini; komponen tidak
+   boleh memakai warna/ukuran literal.
+   ========================================================================== */
+
+:root {
+  /* Brand */
+  --accent: #F26B1D;
+  --accent-strong: #D95A10;
+  --accent-soft: #FFF0E6;
+  --on-accent: #FFFFFF;
+
+  /* Netral (light) */
+  --bg: #F2F2F2;
+  --surface: #FFFFFF;
+  --surface-2: #F7F7F7;
+  --ink: #141414;
+  --ink-2: #4A4A4A;
+  --muted: #8A8A8A;
+  --line: #E8E8E8;
+
+  /* Permukaan gelap (bottom nav, sheet, sidebar) — sama di light & dark */
+  --dark: #1A1A1A;
+  --dark-2: #262626;
+  --dark-line: #333333;
+  --on-dark: #FFFFFF;
+  --on-dark-muted: #9A9A9A;
+
+  /* Semantik */
+  --success: #1F9D55;
+  --success-soft: #E6F5EC;
+  --warning: #B7791F;
+  --warning-soft: #FFF4DB;
+  --danger: #E5484D;
+  --danger-soft: #FDECEC;
+  --info: #2F6FDE;
+  --info-soft: #E8F0FD;
+
+  /* Tipografi */
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --fs-xs: 0.75rem;   /* 12 */
+  --fs-sm: 0.875rem;  /* 14 */
+  --fs-md: 1rem;      /* 16 — minimum untuk input agar iOS tidak zoom */
+  --fs-lg: 1.25rem;   /* 20 */
+  --fs-xl: 1.75rem;   /* 28 */
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  /* Spacing (kelipatan 4) */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
+  --s-5: 20px; --s-6: 24px; --s-8: 32px; --s-10: 40px;
+
+  /* Radius */
+  --r-sm: 12px;
+  --r-md: 20px;
+  --r-lg: 28px;
+  --r-pill: 999px;
+
+  /* Bayangan */
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / .04), 0 2px 8px rgb(0 0 0 / .04);
+  --shadow-md: 0 4px 24px rgb(0 0 0 / .08);
+  --shadow-float: 0 12px 32px rgb(0 0 0 / .28);
+
+  /* Ukuran */
+  --tap: 44px;            /* area sentuh minimum */
+  --gutter: 16px;
+  --nav-h: 64px;
+  --sidebar-w: 248px;
+  --content-max: 720px;
+
+  /* Gerak */
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --t-fast: 120ms;
+  --t-base: 220ms;
+
+  color-scheme: light;
+}
+
+/* Tablet ke atas: gutter lebih lega */
+@media (min-width: 600px)  { :root { --gutter: 24px; } }
+@media (min-width: 1024px) { :root { --gutter: 32px; --content-max: 1080px; } }
+
+/* Mode gelap — mengikuti sistem, atau dipaksa lewat data-theme */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E0E0E;
+    --surface: #1A1A1A;
+    --surface-2: #232323;
+    --ink: #F4F4F4;
+    --ink-2: #C4C4C4;
+    --muted: #8E8E8E;
+    --line: #2C2C2C;
+    --dark: #000000;
+    --dark-2: #1A1A1A;
+    --dark-line: #2C2C2C;
+    --accent-soft: #3A2314;
+    --success-soft: #12301F;
+    --warning-soft: #33280F;
+    --danger-soft: #3A1517;
+    --info-soft: #14233F;
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / .4);
+    --shadow-md: 0 4px 24px rgb(0 0 0 / .5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E0E0E;
+  --surface: #1A1A1A;
+  --surface-2: #232323;
+  --ink: #F4F4F4;
+  --ink-2: #C4C4C4;
+  --muted: #8E8E8E;
+  --line: #2C2C2C;
+  --dark: #000000;
+  --dark-2: #1A1A1A;
+  --dark-line: #2C2C2C;
+  --accent-soft: #3A2314;
+  --success-soft: #12301F;
+  --warning-soft: #33280F;
+  --danger-soft: #3A1517;
+  --info-soft: #14233F;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / .4);
+  --shadow-md: 0 4px 24px rgb(0 0 0 / .5);
+  color-scheme: dark;
+}

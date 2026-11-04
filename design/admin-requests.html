@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Permohonan Admin — Mockup</title>
+<meta name="theme-color" content="#F2F2F2">
+<link rel="icon" href="assets/img/logo-hme.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar only-desktop" aria-label="Navigasi utama">
+    <div class="brand"><img src="assets/img/logo-hme.png" alt=""><div><b>Peminjaman HME</b><span>Admin</span></div></div>
+    <nav>
+      <a href="#"><i data-i="home"></i>Beranda</a>
+      <a href="admin-requests.html" aria-current="page"><i data-i="inbox"></i>Permohonan<span class="count">2</span></a>
+      <a href="#"><i data-i="history"></i>Riwayat</a>
+      <a href="#"><i data-i="chart"></i>Rekap & Laporan</a>
+      <a href="#"><i data-i="box"></i>Master Barang</a>
+      <a href="#"><i data-i="bolt"></i>Tracker PQA</a>
+      <a href="#"><i data-i="users"></i>Pengguna</a>
+      <a href="#"><i data-i="list"></i>Arsip & Log</a>
+    </nav>
+    <div class="me"><button class="btn block" data-theme-toggle style="background:var(--dark-2);color:var(--on-dark)"><i data-i="moon"></i>Ganti tema</button></div>
+  </aside>
+
+  <main class="main wide">
+    <header class="topbar">
+      <img class="logo only-mobile" src="assets/img/logo-hme.png" alt="HME">
+      <div class="who"><small>Admin</small><strong>Permohonan Masuk</strong></div>
+      <button class="icon-btn" aria-label="Notifikasi, 2 baru" data-toast="Pengajuan baru dari Vega" data-toast-sub="2 barang · Survey Bu Glen"><i data-i="bell"></i><span class="dot"></span></button>
+    </header>
+
+    <!-- Statistik -->
+    <section class="stats" aria-label="Ringkasan">
+      <div class="stat accent"><small>Perlu review</small><strong class="num">2</strong></div>
+      <div class="stat"><small>Aktif</small><strong class="num">2</strong></div>
+      <div class="stat"><small>Selesai</small><strong class="num">145</strong></div>
+    </section>
+
+    <div class="search-row">
+      <label class="search"><i data-i="search"></i><span class="sr-only">Cari</span><input type="search" placeholder="Cari peminjam, barang, atau lokasi"></label>
+      <button class="icon-btn dark" aria-label="Filter"><i data-i="filter"></i></button>
+    </div>
+
+    <div class="seg" role="group" aria-label="Filter status">
+      <button aria-pressed="true">Menunggu <span class="num">2</span></button>
+      <button aria-pressed="false">Aktif <span class="num">2</span></button>
+      <button aria-pressed="false">Selesai</button>
+      <button aria-pressed="false">Ditolak</button>
+      <button aria-pressed="false">Dibatalkan</button>
+    </div>
+
+    <span class="mockup-tag">Contoh tampilan: dua pengajuan di bawah adalah ilustrasi (saat ini tidak ada yang menunggu)</span>
+
+    <!-- Pengajuan menunggu -->
+    <section class="list cols loan-list cols" aria-label="Pengajuan menunggu">
+      <article class="card loan-card" data-open-sheet="sheet-detail" tabindex="0" role="button" aria-label="Buka detail pengajuan Vega">
+        <div class="loan-top">
+          <span class="avatar">VG</span>
+          <div class="meta">
+            <div class="id">Vega</div>
+            <div class="sub with-stack">
+              <span class="items-stack">
+                <span class="thumb"><img src="assets/img/HME-DRN-02.jpg" alt=""></span>
+                <span class="thumb"><i data-i="ruler"></i></span>
+              </span>
+              <span style="overflow:hidden;text-overflow:ellipsis">2 barang · baru saja</span>
+            </div>
+          </div>
+          <span class="chip pending">Menunggu</span>
+        </div>
+        <div class="facts">
+          <div><small>Barang</small><strong>Drone DJI MINI 2 SE +1</strong></div>
+          <div><small>Tujuan</small><strong>Survey Bu Glen</strong></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn danger" data-toast="Pengajuan ditolak" data-toast-sub="Vega diberi tahu lewat notifikasi" onclick="event.stopPropagation()">Tolak</button>
+          <button class="btn primary" data-toast="Pengajuan disetujui" data-toast-sub="Barang berstatus Dipinjam" data-toast-kind="ok" onclick="event.stopPropagation()">Setujui</button>
+        </div>
+      </article>
+
+      <article class="card loan-card" data-open-sheet="sheet-detail" tabindex="0" role="button" aria-label="Buka detail pengajuan Yudi">
+        <div class="loan-top">
+          <span class="avatar">Y</span>
+          <div class="meta">
+            <div class="id">Yudi</div>
+            <div class="sub with-stack">
+              <span class="items-stack">
+                <span class="thumb"><img src="assets/img/HME-JKSD-01.jpg" alt=""></span>
+                <span class="thumb"><i data-i="ruler"></i></span>
+              </span>
+              <span style="overflow:hidden;text-overflow:ellipsis">2 barang · 12 menit lalu</span>
+            </div>
+          </div>
+          <span class="chip pending">Menunggu</span>
+        </div>
+        <div class="facts">
+          <div><small>Barang</small><strong>Jangka Sorong Digital +1</strong></div>
+          <div><small>Tujuan</small><strong>Unggul</strong></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn danger" data-toast="Pengajuan ditolak" data-toast-sub="Yudi diberi tahu lewat notifikasi" onclick="event.stopPropagation()">Tolak</button>
+          <button class="btn primary" data-toast="Pengajuan disetujui" data-toast-sub="Barang berstatus Dipinjam" data-toast-kind="ok" onclick="event.stopPropagation()">Setujui</button>
+        </div>
+      </article>
+    </section>
+
+    <!-- Transaksi terbaru (data asli) -->
+    <section aria-labelledby="h-latest">
+      <div class="section-head"><h2 id="h-latest">Transaksi Terbaru</h2><a class="link" href="#">Lihat riwayat</a></div>
+
+      <!-- HP & tablet: daftar kartu -->
+      <div class="list only-mobile-tablet" style="margin-top:var(--s-3)">
+        <button class="row">
+          <span class="avatar">Nf</span>
+          <span class="meta"><span class="title" style="display:block">Naufal · Project pak wali</span><span class="sub" style="display:block">Helm Putih 3, Helm Putih 4 · 03 Nov 2026</span></span>
+          <span class="chip active">Aktif</span>
+        </button>
+        <button class="row">
+          <span class="avatar">V</span>
+          <span class="meta"><span class="title" style="display:block">Victor · Jo dherma</span><span class="sub" style="display:block">Drone DJI MINI 4K +2 · 02 Nov 2026</span></span>
+          <span class="chip done">Selesai</span>
+        </button>
+        <button class="row">
+          <span class="avatar">VG</span>
+          <span class="meta"><span class="title" style="display:block">Vega · Standford Surabaya</span><span class="sub" style="display:block">Drone DJI MINI 4K +2 · 02 Nov 2026</span></span>
+          <span class="chip done">Selesai</span>
+        </button>
+        <button class="row">
+          <span class="avatar">R</span>
+          <span class="meta"><span class="title" style="display:block">Rian · Survey Bu Glen</span><span class="sub" style="display:block">Drone DJI MINI 4K +3 · 30 Okt 2026</span></span>
+          <span class="chip done">Selesai</span>
+        </button>
+      </div>
+
+      <!-- Desktop: tabel -->
+      <div class="table-wrap" style="margin-top:var(--s-3)">
+        <table class="table">
+          <thead><tr><th>Peminjam</th><th>Barang</th><th>Tujuan</th><th>Dibawa</th><th>Dikembalikan</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td><b>Naufal</b></td><td>Helm Putih 3, Helm Putih 4</td><td>Project pak wali</td><td class="num">03 Nov 2026 09.19</td><td>—</td><td><span class="chip active">Aktif</span></td></tr>
+            <tr><td><b>Victor</b></td><td>Drone DJI MINI 4K, Meteran Laser 70M 02, Meteran Biasa (Oren)</td><td>Jo dherma</td><td class="num">02 Nov 2026 13.17</td><td class="num">04 Nov 2026 09.05</td><td><span class="chip done">Selesai</span></td></tr>
+            <tr><td><b>Vega</b></td><td>Drone DJI MINI 4K, Meteran Biasa (Oren), Meteran Laser 70M 02</td><td>Standford Surabaya</td><td class="num">02 Nov 2026 09.06</td><td class="num">02 Nov 2026 11.20</td><td><span class="chip done">Selesai</span></td></tr>
+            <tr><td><b>Rian</b></td><td>Drone DJI MINI 4K, Meteran Laser 100M, Meteran Gulung, Meteran Biasa (Hitam Oren)</td><td>Survey Bu Glen</td><td class="num">30 Okt 2026 10.14</td><td class="num">02 Nov 2026 09.05</td><td><span class="chip done">Selesai</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Navigasi utama">
+    <a href="#"><i data-i="home"></i>Beranda</a>
+    <a href="admin-requests.html" aria-current="page"><i data-i="inbox"></i>Permohonan<span class="count">2</span></a>
+    <button class="fab" aria-label="Tambah barang"><i data-i="plus"></i></button>
+    <a href="#"><i data-i="box"></i>Barang</a>
+    <a href="#"><i data-i="more"></i>Lainnya</a>
+  </nav>
+</div>
+
+<!-- Sheet detail (admin) -->
+<div class="scrim" aria-hidden="true"></div>
+<section class="sheet" id="sheet-detail" role="dialog" aria-modal="true" aria-labelledby="sd-title" aria-hidden="true">
+  <div class="grab"></div>
+  <div class="sheet-inner">
+    <div class="head">
+      <div><small>ID Pinjam</small><div class="big num" id="sd-title">HME-1793758800000</div></div>
+      <span class="chip pending">Menunggu</span>
+    </div>
+    <div>
+      <div class="stepper on-dark">
+        <span class="step current"><i data-i="clock" style="width:12px;height:12px"></i></span><span class="link-dots"></span>
+        <span class="step"></span><span class="link-dots"></span>
+        <span class="step"></span>
+      </div>
+      <div class="step-labels on-dark"><span class="on">Diajukan</span><span>Dipinjam</span><span>Dikembalikan</span></div>
+    </div>
+    <hr>
+    <div class="kv">
+      <div><small>Diajukan</small><strong class="num">04 Nov 2026, 10.02</strong></div>
+      <div><small>Tanggal pinjam</small><strong class="num">04 Nov 2026</strong></div>
+      <div class="full"><small>Lokasi tujuan</small><strong>Survey Bu Glen</strong></div>
+      <div class="full"><small>Tim</small><strong>Vega, Rika</strong></div>
+      <div class="full"><small>Keterangan</small><strong>Barang tambahan: waterpass</strong></div>
+    </div>
+    <hr>
+    <div style="display:grid;gap:var(--s-2)">
+      <div class="item-line"><span class="thumb sq"><img src="assets/img/HME-DRN-02.jpg" alt="" style="width:100%;height:100%;object-fit:cover"></span><div><b>Drone DJI MINI 2 SE</b><span class="num">HME-DRN-02 · Tersedia</span></div></div>
+      <div class="item-line"><span class="thumb sq"><i data-i="ruler"></i></span><div><b>Meteran Laser 100M</b><span class="num">HME-MTRL-02 · Tersedia</span></div></div>
+    </div>
+    <div class="person-bar">
+      <span class="avatar">VG</span>
+      <div class="meta"><b>Vega</b><span>Staff · 6 transaksi sebelumnya</span></div>
+      <button class="round-btn no" aria-label="Tolak pengajuan" data-toast="Pengajuan ditolak" data-toast-sub="Vega diberi tahu lewat notifikasi" data-close-sheet><i data-i="x"></i></button>
+      <button class="round-btn ok" aria-label="Setujui pengajuan" data-toast="Pengajuan disetujui" data-toast-sub="Barang berstatus Dipinjam" data-toast-kind="ok" data-close-sheet><i data-i="check"></i></button>
+    </div>
+    <span style="color:var(--on-dark-muted);font-size:var(--fs-xs)">Contoh tampilan. Ketersediaan barang dicek ulang di server saat Anda menekan Setujui.</span>
+  </div>
+</section>
+
+<script src="js/ui.js"></script>
+<style>@media (min-width:1024px){.only-mobile-tablet{display:none!important}.loan-list.cols{grid-template-columns:repeat(2,minmax(0,1fr))}}</style>
+</body>
+</html>

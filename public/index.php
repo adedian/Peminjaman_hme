@@ -1,0 +1,66 @@
+<?php
+declare(strict_types=1);
+
+/**
+ * Front controller tunggal: semua halaman dan API (/api/v1/*) masuk lewat sini.
+ * Hanya folder public/ yang boleh menjadi document root di hosting.
+ */
+
+require dirname(__DIR__) . '/app/bootstrap.php';
+
+use App\Core\ErrorHandler;
+use App\Core\Logger;
+use App\Core\Request;
+use App\Core\Router;
+use App\Middleware\AuthMiddleware;
+use App\Middleware\CsrfMiddleware;
+use App\Middleware\ForcePasswordChangeMiddleware;
+use App\Middleware\RoleMiddleware;
+use App\Services\MailService;
+
+header_remove('X-Powered-By');
+
+$router = new Router([
+    'auth' => AuthMiddleware::class,
+    'role' => RoleMiddleware::class,
+    'csrf' => CsrfMiddleware::class,
+    'pwd'  => ForcePasswordChangeMiddleware::class,
+]);
+require HME_ROOT . '/routes/api.php';
+require HME_ROOT . '/routes/web.php';
+
+$request = null;
+try {
+    $request = Request::fromGlobals();
+    $response = $router->dispatch($request);
+} catch (Throwable $e) {
+    $response = ErrorHandler::toResponse($e, $request);
+}
+
+$response = $response
+    ->withSecurityHeaders($request)
+    ->withHeader('X-Request-Id', Logger::requestId());
+
+// Ada email baru di antrean → selesaikan respons ke browser dulu, baru kirim email (pengguna tidak menunggu SMTP).
+$deferMail = MailService::hasQueued();
+if ($deferMail && !ini_get('zlib.output_compression') && $response->header('Content-Length') === null
+    && $response->status() !== 204 && $response->status() !== 304) {
+    $response = $response->withHeader('Content-Length', (string) strlen($response->body()));
+}
+$response->send();
+
+if ($deferMail) {
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();          // jangan menahan kunci sesi selama mengirim email
+    }
+    ignore_user_abort(true);
+    if (function_exists('fastcgi_finish_request')) {
+        fastcgi_finish_request();
+    } else {
+        while (ob_get_level() > 0) {
+            ob_end_flush();
+        }
+        flush();
+    }
+    MailService::drain();
+}

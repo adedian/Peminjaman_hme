@@ -1,0 +1,81 @@
+# Catatan Perubahan
+
+## 2026-11-04 — Tahap 7: Pengujian menyeluruh (selesai, 307 tes lulus dua kali berturut-turut)
+- Sapuan otomatis atas **seluruh 82 rute** (dibangkitkan dari router): kebijakan akses statis, matriks otorisasi anonim/staff/admin, CSRF, fuzzing query & badan (±2.000 request, tanpa 5xx), XSS tersimpan di semua halaman, production + database mati tanpa kebocoran.
+- Bug diperbaiki: byte NUL pada tanggal menyebabkan 500 (`Validator` aturan `date`, filter tanggal log) — PHP 8 `createFromFormat` melempar `ValueError`.
+- `IntegrityService` + `php tools/check-integrity.php` (13 aturan); database kerja konsisten.
+- Responsif 360/768/1280 px semua halaman: tanpa scroll horizontal; target sentuh "Lihat semua" diperbesar ke 44 px.
+- Laporan: `docs/test-reports/tahap-7-pengujian-menyeluruh.md`.
+
+## 2026-11-04 — Tahap 6: Migrasi data & rekonsiliasi (selesai, 300 tes lulus)
+- `tools/migrate-legacy.php` + `app/Migration/*`: impor read-only, satu transaksi, dry-run, idempoten, laporan per baris; password lama di-hash & wajib diganti; menolak ekspor di dalam folder aplikasi.
+- Rekonsiliasi otomatis dari sumber (akun, barang, transaksi per baris/akun/barang, pengajuan, paritas `getMonthlyStats` 14 periode & Laporan Stok, arsip, PQA, register) — database kerja: 18/18 cocok.
+- Koreksi rencana: pengajuan 47 (bukan 59 prefix; ID terpecah antar-milidetik); urutan baris sheet (`legacy_row`) dipakai rekap agar ranking identik.
+- Halaman admin **Arsip Data Lama** (catatan manual, register + "Jadikan Master Barang") dan **Laporan Migrasi** (rekonsiliasi, rincian, XLSX); `ImageService::storeLocal` untuk unduh foto Drive.
+- Detail: `docs/11-tahap-6-migrasi.md`.
+
+## 2026-11-04 — Tahap 5: Frontend realtime (selesai, 291 tes lulus)
+- `GET /api/v1/sync?since=` (`SyncService`): 204 bila tidak ada perubahan, delta jenis+ID yang disaring per peran, reset bila kursor tidak valid / > 500 perubahan, pembersihan feed lama; polling tidak memperpanjang sesi idle.
+- `realtime.js`: satu poller per browser (Web Locks + BroadcastChannel), interval adaptif 1,5 / 5 / 20 dtk, backoff, lonceng & lencana & toast global; API `hmeLive.on/swap` untuk halaman.
+- Semua halaman diperbarui otomatis tanpa me-reset formulir; peringatan inline saat barang di keranjang diambil orang lain; detail terbuka diperbarui tanpa memindah fokus.
+- Uji dua akun: latensi 0,3–1,3 dtk (target ≤ 2 dtk), isian form utuh.
+- Detail & bukti: `docs/10-tahap-5-realtime.md`.
+
+## 2026-11-04 — Tahap 4g: Audit log, notifikasi, email (selesai, 284 tes lulus)
+- `MailService` (PHPMailer 6.12.0, antrean `mail_outbox` / migrasi `0010`, kirim setelah respons, coba ulang bertahap, `tools/send-mail.php`), email BR-12 meniru sistem lama ("Permohonan Baru", "Barang Kembali"); SMTP kosong → dilewati & dicatat.
+- `NotificationService` + lonceng di bilah atas, halaman `/notifications`; `LoanNotifier`/`PqaNotifier` diisi (penerima per peran, pelaku tidak menerima notifikasinya sendiri); tautan `?open=` membuka detail pengajuan/PQA.
+- Halaman admin **Log Aktivitas** (`/logs`, filter kelompok/pelaku/kata kunci/tanggal, rincian sebelum/sesudah) dan **Pengaturan** (`/settings`, alamat email penerima, status pengiriman, email uji).
+- Tes cakupan audit: 31 jenis aksi tulis tercatat; tes lama tidak lagi menghapus seluruh `activity_logs`.
+- Detail, keputusan yang perlu konfirmasi, dan bukti uji: `docs/09-tahap-4g-notifikasi.md`.
+
+## 2026-11-04 — Tahap 4f: Rekap & laporan Excel (selesai, 266 tes lulus)
+- `ReportService` (filter bulan/tahun/rentang/semua, rekap BR-26, Laporan Stok BR-28, Transaksi Periode Q9), API `reports/summary` & `reports/export` (admin), halaman `/recap` + menu Rekap (sidebar & "Lainnya").
+- Logika diambil langsung dari `getMonthlyStats`/`generateExcelReport` lama; tes paritas memakai port fungsi lama pada 53 kombinasi periode.
+- Perbaikan F1 (filter memengaruhi Excel), F2 (Peminjam Terakhir hanya approved/returned), S7 (unduhan langsung, tanpa berkas publik); foto tersemat; teks ditulis sebagai string (anti formula injection); unduhan tercatat di audit log.
+- Composer: `phpoffice/phpspreadsheet` 1.30.7 (platform PHP 8.0.30).
+- Detail, keputusan yang perlu konfirmasi, dan bukti uji: `docs/08-tahap-4f-rekap.md`.
+
+## 2026-11-04 — Tahap 4e: Tracker PQA (selesai, 254 tes lulus)
+- `PqaService` (pasang, tambah waktu, request cabut, keputusan admin atas ketiganya, durasi hari penuh, aksi per peran), hook `PqaNotifier` (isi di 4g); API `pqa/*`; halaman `/pqa` (kartu + bilah progres + sheet) dan menu admin `/more`; navigasi dengan lencana PQA.
+- **Koreksi katalog BR-24:** kode lama tidak melarang request cabut saat tambah waktu menunggu → mengikuti sistem lama; persetujuan cabut menutup otomatis permintaan tambah waktu yang menggantung.
+- Riwayat kini menampilkan juga pemasangan yang `Ditolak`; `requested_by` dicatat; tracker dibagi bersama seluruh staff.
+- Tes konkurensi lintas modul (pinjam biasa vs pasang PQA) memakai proses PHP paralel.
+- Catatan: lencana navigasi dirender server → pembaruan otomatis menunggu `/sync` di Tahap 5.
+- Detail, keputusan yang perlu konfirmasi, dan bukti uji: `docs/07-tahap-4e-pqa.md`.
+
+## 2026-11-04 — Tahap 4d: peminjaman (selesai, 226 tes lulus)
+- `LoanService` (ajukan multi-barang, setujui/tolak per pengajuan & per barang, batalkan, kembalikan, ganti unit), `AvailabilityService` (status barang dari loan+PQA, penguncian, nomor urut atomik), hook `LoanNotifier` (isi di 4g).
+- API `requests`/`loans`/`items/available`; halaman beranda, `/requests` (Permohonan/Riwayat), `/requests/new`; navigasi per peran dengan lencana permohonan.
+- **Deadlock ditemukan tes paralel & diperbaiki:** penghitung nomor urut tanpa `INSERT…SELECT`; isolasi `READ COMMITTED` (`DB_ISOLATION`); migrasi `0009` (baris `loan_seq`).
+- Tes konkurensi memakai proses PHP paralel sungguhan (`tests/child_loan.php`).
+- Detail, keputusan yang perlu konfirmasi, dan bukti uji: `docs/06-tahap-4d-peminjaman.md`.
+
+## 2026-11-04 — Tahap 4c: inventaris barang (selesai, 188 tes lulus)
+- Master barang: halaman `/items` (grid berfoto, cari, filter), API `items`/`categories`, tambah/ubah/nonaktifkan-aktifkan, kunci ID bila berriwayat, guard unit PQA.
+- Foto: `ImageService` (validasi isi, batas piksel/memori, olah ulang GD, nama acak, thumbnail), penyaji `/media/items/{nama}` berotorisasi (ETag/304), `UPLOAD_DIR` dapat diatur, klien JS memperkecil foto sebelum kirim.
+- Bug ditemukan & diperbaiki: `lock()` tanpa `category_id` (500 saat ubah); gagal baca berkas → 500 (kini 422); media 200 berbadan kosong saat berkas terkunci (kini 503); atribut `hidden` kalah oleh `display`; filter bertabrakan di lebar menengah.
+- Detail & catatan tes sporadis di Windows: `docs/05-tahap-4c-inventaris.md`.
+
+## 2026-11-04 — Tahap 4b: autentikasi & manajemen pengguna (selesai, 152 tes lulus)
+- Login/logout (formulir + API), sesi terikat versi kredensial (`users.auth_version`, migrasi 0008), pembatasan percobaan login, wajib ganti password, ganti password, kelola pengguna (tambah/ubah/nonaktifkan/reset), audit log, change feed.
+- Halaman: `/login`, `/profile`, `/`, `/users`; shell aplikasi (sidebar desktop + bottom-nav HP) dan JS tanpa skrip inline (`ui.js`, `api.js`, `login.js`, `profile.js`, `users.js`).
+- `tools/create-admin.php` (tanpa password bawaan); tes end-to-end dengan server PHP + klien bercookie.
+- Bug ditemukan tes & diperbaiki: input bertipe array menyebabkan 500 (kini 422); celah vertikal layout desktop.
+- Detail: `docs/04-tahap-4b-auth-pengguna.md`.
+
+## 2026-11-04 — Tahap 4a: fondasi backend (selesai, 90 tes lulus)
+- Menambah `app/Core` (Env, Config, Database, Session, Csrf, Request, Response, Router, View, Validator, Logger, ErrorHandler, HttpException, Migrator), `app/Middleware` (Auth, Role, Csrf, ForcePasswordChange), `public/index.php` + `.htaccess`, `routes/`, view dasar.
+- Menambah 7 migrasi SQL (16 tabel) + seed data acuan, `database/migrate.php`, `tools/check-env.php`, dan suite tes `tests/` (database tes terpisah).
+- Bug ditemukan tes dan diperbaiki: (1) error parsing JSON pada request API tampil sebagai HTML → kini selalu JSON; (2) parameter integer dikirim sebagai string → kini di-bind bertipe (`LIMIT ?` bekerja, tanpa konversi implisit).
+- Pengerasan: pengunjung anonim tidak dibuatkan sesi; CSRF otomatis untuk semua method penulisan; `LOG_DIR` dapat diatur.
+- Detail: `docs/03-tahap-4a-fondasi.md`.
+
+## 2026-11-04 — Tahap 3: UI/UX (menunggu review)
+- Menambah `design/` : `css/tokens.css`, `css/components.css`, `js/ui.js`, tiga halaman acuan (`staff-home`, `admin-requests`, `components`).
+- Menambah `docs/02-design-system.md`.
+- Hasil uji tampilan: tidak ada overflow horizontal di 360 / 390 / 768 / 1024 px; tidak ada target sentuh < 44 px; mode terang dan gelap; sheet HP (dari bawah) dan desktop (panel kanan); tanpa error konsol.
+- Koreksi spesifikasi: stepper peminjaman 3 tahap (lihat `02-design-system.md` §4).
+- Perbaikan selama pengerjaan: grid dengan teks `nowrap` melebarkan halaman di HP → semua kolom grid memakai `minmax(0, 1fr)` dan item `min-width: 0`.
+
+## 2026-11-04 — Tahap 1–2: audit & spesifikasi
+- `docs/01-audit-dan-perencanaan.md` v1.1 FINAL (keputusan Q1–Q12 disetujui).

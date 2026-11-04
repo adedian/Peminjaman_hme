@@ -1,0 +1,25 @@
+Options -Indexes -MultiViews
+DirectoryIndex index.php
+
+<IfModule mod_headers.c>
+    # Header keamanan untuk respons dinamis ditambahkan oleh PHP (Response::withSecurityHeaders).
+    # Di sini hanya aset statis, yang dilayani langsung oleh Apache. URL aset memakai ?v=<mtime>.
+    <FilesMatch "\.(css|js|png|jpe?g|webp|svg|woff2?)$">
+        Header set X-Content-Type-Options "nosniff"
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # File statis yang ada → langsung dilayani
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+    # Selain itu → front controller
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Jangan pernah melayani file tersembunyi / konfigurasi
+<FilesMatch "^\.|\.(env|sql|log|md|lock|json|ini|bak)$">
+    Require all denied
+</FilesMatch>

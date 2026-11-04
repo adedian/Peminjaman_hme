@@ -1,0 +1,50 @@
+-- Satu pengajuan multi-barang = satu loan_batches yang berisi N loans (BR-04, BR-06).
+CREATE TABLE loan_batches (
+  id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  legacy_prefix VARCHAR(40) NULL,
+  user_id       INT UNSIGNED NOT NULL,
+  created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_batches_legacy (legacy_prefix),
+  KEY idx_batches_user (user_id),
+  CONSTRAINT fk_batches_user FOREIGN KEY (user_id) REFERENCES users (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE loans (
+  id                    INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  legacy_id             VARCHAR(40) NULL,
+  seq_no                INT UNSIGNED NOT NULL,
+  legacy_row            INT UNSIGNED NULL,
+  batch_id              INT UNSIGNED NOT NULL,
+  user_id               INT UNSIGNED NOT NULL,
+  item_id               INT UNSIGNED NOT NULL,
+  item_name_snapshot    VARCHAR(150) NOT NULL,
+  carrier_name_snapshot VARCHAR(100) NOT NULL,
+  borrowed_at           DATETIME NOT NULL,
+  returned_at           DATETIME NULL,
+  team                  VARCHAR(255) NULL,
+  location              VARCHAR(255) NOT NULL,
+  notes                 TEXT NULL,
+  status                ENUM('pending','approved','rejected','returned','cancelled') NOT NULL DEFAULT 'pending',
+  decided_by            INT UNSIGNED NULL,
+  decided_at            DATETIME NULL,
+  returned_by           INT UNSIGNED NULL,
+  cancelled_at          DATETIME NULL,
+  created_at            DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at            DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  -- Pengaman terakhir anti double-booking: satu barang hanya boleh punya SATU loan pending/approved.
+  active_item_key       INT UNSIGNED GENERATED ALWAYS AS (IF(status IN ('pending','approved'), item_id, NULL)) STORED,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_loans_legacy_id (legacy_id),
+  UNIQUE KEY uq_loans_seq_no (seq_no),
+  UNIQUE KEY uq_loans_active_item (active_item_key),
+  KEY idx_loans_user_status (user_id, status),
+  KEY idx_loans_item_status (item_id, status),
+  KEY idx_loans_status_date (status, borrowed_at),
+  KEY idx_loans_batch (batch_id),
+  CONSTRAINT fk_loans_batch    FOREIGN KEY (batch_id)    REFERENCES loan_batches (id),
+  CONSTRAINT fk_loans_user     FOREIGN KEY (user_id)     REFERENCES users (id),
+  CONSTRAINT fk_loans_item     FOREIGN KEY (item_id)     REFERENCES items (id),
+  CONSTRAINT fk_loans_decider  FOREIGN KEY (decided_by)  REFERENCES users (id),
+  CONSTRAINT fk_loans_returner FOREIGN KEY (returned_by) REFERENCES users (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
