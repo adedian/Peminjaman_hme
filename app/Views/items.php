@@ -13,7 +13,7 @@ View::share('sheets', View::render('partials/items_sheets', ['categories' => $ca
 $active = count(array_filter($items, static fn($i) => $i['is_active']));
 ?>
 <div class="section-head">
-  <h2><?= $active ?> barang aktif<?= $total - $active > 0 ? ' · ' . ($total - $active) . ' tersembunyi dari daftar pinjam' : '' ?></h2>
+  <h2><?= $active ?> barang aktif<?php $hiddenN = count($items) - $active; ?><?= $hiddenN > 0 ? ' · ' . $hiddenN . ' tersembunyi (lihat filter Tersembunyi)' : '' ?></h2>
   <button class="btn primary" type="button" id="btn-add-item"><?= icon('plus') ?>Tambah</button>
 </div>
 
@@ -21,7 +21,7 @@ $active = count(array_filter($items, static fn($i) => $i['is_active']));
 
 <div class="filters">
   <div class="seg" role="group" aria-label="Filter status" id="status-filter">
-    <button type="button" data-status="" aria-pressed="true">Semua</button>
+    <button type="button" data-status="" aria-pressed="true">Aktif</button>
     <button type="button" data-status="Tersedia" aria-pressed="false">Tersedia</button>
     <button type="button" data-status="Dipinjam" aria-pressed="false">Dipinjam</button>
     <button type="button" data-status="off" aria-pressed="false">Tersembunyi</button>
@@ -38,7 +38,7 @@ $active = count(array_filter($items, static fn($i) => $i['is_active']));
 
 <div class="inv-grid" id="item-grid">
 <?php foreach ($items as $i): ?>
-  <button class="inv-card<?= $i['is_active'] ? '' : ' is-off' ?>" type="button"
+  <button class="inv-card<?= $i['is_active'] ? '' : ' is-off' ?>" type="button"<?= $i['is_active'] ? '' : ' hidden' ?>
           data-item='<?= e(json_encode([
               'id' => $i['id'], 'code' => $i['code'], 'name' => $i['name'], 'category_id' => $i['category_id'],
               'finance_ref' => $i['finance_ref'], 'is_pqa' => $i['is_pqa'], 'active' => $i['is_active'],

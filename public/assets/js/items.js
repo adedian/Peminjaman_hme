@@ -19,7 +19,7 @@
     grid.querySelectorAll('.inv-card').forEach(function (c) {
       var ok = (!f.q || c.getAttribute('data-search').indexOf(f.q) !== -1) &&
                (!f.cat || c.getAttribute('data-cat') === f.cat) &&
-               (!f.status || c.getAttribute('data-state') === f.status);
+               (f.status ? c.getAttribute('data-state') === f.status : c.getAttribute('data-state') !== 'off');   // tampilan biasa: barang yang disembunyikan tidak ikut tampil
       c.hidden = !ok;
       if (ok) { shown++; }
     });
@@ -35,6 +35,7 @@
     f.status = b.getAttribute('data-status');
     applyFilters();
   });
+  applyFilters();   // tampilan awal: barang yang disembunyikan tidak ikut tampil
 
   // ---- Kartu → menu aksi -------------------------------------------------------------------
   grid.addEventListener('click', function (e) {
@@ -247,7 +248,7 @@
     if (it.active) {
       ask('Hapus ' + it.name + ' dari daftar pinjam?', 'Barang tidak lagi muncul di form peminjaman dan pemasangan PQA. Data barang, foto, dan seluruh riwayat TETAP tersimpan di Master Barang; Anda bisa menampilkannya lagi kapan saja.', 'Ya, hapus dari daftar pinjam', function () {
         api.post('/items/' + it.id + '/deactivate').then(function () {
-          ui.flashNext('Dihapus dari daftar pinjam', it.name + ' — data barang tetap ada', 'ok'); window.location.reload();
+          ui.flashNext('Dihapus dari daftar pinjam', it.name + ' — data tetap ada, lihat di filter Tersembunyi', 'ok'); window.location.reload();
         }).catch(fail);
       });
     } else {

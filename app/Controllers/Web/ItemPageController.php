@@ -12,10 +12,13 @@ final class ItemPageController extends BaseController
 {
     public function index(Request $request, array $params): Response
     {
-        $list = ItemService::list([], 200, 0);
+        // Aktif dan tersembunyi diambil terpisah: barang yang disembunyikan dari daftar pinjam tetap dapat ditemukan
+        // (filter "Tersembunyi") walau jumlah barang aktif melebihi batas halaman.
+        $active = ItemService::list(['active' => '1'], 200, 0);
+        $hidden = ItemService::list(['active' => '0'], 200, 0);
         return $this->page($request, 'items', 'items', 'Master Barang', [
-            'items'      => $list['items'],
-            'total'      => $list['total'],
+            'items'      => array_merge($active['items'], $hidden['items']),
+            'total'      => $active['total'] + $hidden['total'],
             'categories' => ItemService::categories(),
         ]);
     }
