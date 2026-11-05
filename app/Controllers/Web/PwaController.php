@@ -60,7 +60,7 @@ final class PwaController
         $precache = [
             url('/offline'),
             asset('css/tokens.css'), asset('css/components.css'), asset('css/app.css'),
-            asset('img/icon-192.png'), asset('img/logo-mark.png'),
+            asset('img/icon-192.png'), asset('img/icon-512.png'),
         ];
         $version = substr(sha1($src . implode('|', $precache) . (string) @filemtime($file)), 0, 12);
         $body = strtr($src, [

@@ -8,7 +8,7 @@ $role = ($old['role'] ?? 'staff') === 'admin' ? 'admin' : 'staff';
 <?= icon_sprite() ?>
 <main class="auth-wrap">
   <div class="auth-card">
-    <img class="auth-logo" src="<?= e(asset('img/logo-mark.png')) ?>" alt="Logo Peminjaman HME">
+    <img class="auth-logo" src="<?= e(asset('img/icon-512.png')) ?>" srcset="<?= e(asset('img/icon-192.png')) ?> 192w, <?= e(asset('img/icon-512.png')) ?> 512w" sizes="120px" alt="Logo Peminjaman HME" width="120" height="120">
     <h1>Peminjaman HME</h1>
     <p class="auth-sub">PT Hexa Multi Energi</p>
 

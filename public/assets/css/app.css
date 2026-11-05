@@ -288,13 +288,8 @@ a.quick-card { color: inherit; }
 .section-head h2 { font-size: var(--fs-md); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
 
-/* ---- Logo "Peminjaman HME": tanda heksagon + tulisan ---- */
-.brandmark { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ink); flex: none; min-height: var(--tap); }
-.brandmark img { width: 34px; height: auto; display: block; }
-.bm-text { display: grid; line-height: 1; gap: 2px; }
-.bm-text small { font-size: 9.5px; font-weight: var(--fw-semibold); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
-.bm-text b { font-size: 1.0625rem; font-weight: var(--fw-bold); letter-spacing: .02em; }
-.auth-logo { width: 112px; }
-.sidebar .brand img { width: 40px; height: auto; background: none; padding: 0; border-radius: 0; }
-.topbar .brandmark + .who { min-width: 0; }
-@media (max-width: 420px) { .topbar .brandmark .bm-text small { display: none; } .topbar .brandmark .bm-text b { font-size: .9375rem; } }
+/* ---- Logo "Peminjaman HME": ikon penuh (heksagon HME + tulisan PEMINJAMAN) ---- */
+.brandlogo { display: inline-flex; flex: none; min-height: var(--tap); align-items: center; text-decoration: none; }
+.brandlogo img { width: 44px; height: 44px; border-radius: 12px; display: block; box-shadow: var(--shadow-sm); }
+.auth-logo { width: 120px; height: 120px; border-radius: 26px; box-shadow: var(--shadow-md); margin: 0 auto; display: block; }
+.sidebar .brand img { width: 44px; height: 44px; border-radius: 12px; background: none; padding: 0; object-fit: cover; }

@@ -74,7 +74,7 @@ $toast = Session::pullFlash('toast');
 
 <?php if (!$minimal): ?>
   <aside class="sidebar only-desktop" aria-label="Navigasi utama">
-    <div class="brand"><img src="<?= e(asset('img/logo-mark.png')) ?>" alt=""><div><b>Peminjaman HME</b><span><?= $isAdmin ? 'Admin' : 'Staff' ?></span></div></div>
+    <div class="brand"><img src="<?= e(asset('img/icon-192.png')) ?>" alt="" width="44" height="44"><div><b>Peminjaman HME</b><span><?= $isAdmin ? 'Admin' : 'Staff' ?></span></div></div>
     <nav>
       <?php foreach ($items as [$key, $path, $label, $ico]): ?>
         <a href="<?= e(url($path)) ?>" data-nav="<?= e($key) ?>"<?= $nav === $key ? ' aria-current="page"' : '' ?>><?= icon($ico) ?><?= e($label) ?><?php if (!empty($badge[$key])): ?><span class="count"><?= (int) $badge[$key] ?></span><?php endif; ?></a>
@@ -91,7 +91,7 @@ $toast = Session::pullFlash('toast');
 
   <main class="main">
     <header class="topbar">
-      <a class="brandmark only-mobile" href="<?= e(url('/')) ?>" aria-label="Peminjaman HME — Beranda"><img src="<?= e(asset('img/logo-mark.png')) ?>" alt=""><span class="bm-text"><small>Peminjaman</small><b>HME</b></span></a>
+      <a class="brandlogo only-mobile" href="<?= e(url('/')) ?>" aria-label="Peminjaman HME — Beranda"><img src="<?= e(asset('img/icon-192.png')) ?>" alt="Peminjaman HME" width="44" height="44"></a>
       <div class="who"><small><?= $isAdmin ? 'Admin' : 'Staff' ?> · <?= e($user['name'] ?? '') ?></small><strong><?= e($title) ?></strong></div>
       <?php if (!$minimal): ?>
       <a class="icon-btn bell" id="nav-bell" href="<?= e(url('/notifications')) ?>" aria-label="Notifikasi<?= $unread > 0 ? ' (' . $unread . ' belum dibaca)' : '' ?>"<?= $nav === 'notifications' ? ' aria-current="page"' : '' ?>><?= icon('bell') ?><?php if ($unread > 0): ?><span class="bell-count num" data-unread><?= $unread > 99 ? '99+' : $unread ?></span><?php endif; ?></a>

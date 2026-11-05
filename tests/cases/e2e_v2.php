@@ -62,7 +62,7 @@ t('Halaman offline: publik, tanpa skrip/gaya inline, memakai CSS & logo yang di-
     contains('Peminjaman HME', $r['body']);
     lacks('<script>', $r['body']);
     lacks('<style', $r['body']);
-    contains('logo-mark.png', $r['body']);
+    contains('icon-192.png', $r['body']);
 });
 
 t('Semua halaman memuat tag PWA (manifes, theme-color, apple-touch-icon), pwa.js eksternal, dan logo "Peminjaman HME" (bukan logo lama)', function () {
@@ -81,10 +81,12 @@ t('Semua halaman memuat tag PWA (manifes, theme-color, apple-touch-icon), pwa.js
     $login = (new Client())->get('/login')['body'];
     contains('<h1>Peminjaman HME</h1>', $login);
     contains('alt="Logo Peminjaman HME"', $login);
+    contains('icon-512.png', $login);
     $home = e2eAdmin()->get('/')['body'];
-    contains('class="brandmark', $home);
-    contains('<b>HME</b>', $home);
-    contains('<small>Peminjaman</small>', $home);
+    contains('class="brandlogo', $home);
+    contains('icon-192.png', $home);
+    contains('alt="Peminjaman HME"', $home);
+    lacks('logo-mark.png', $home, 'logo lama (heksagon polos) tidak dipakai lagi');
 });
 
 t('Berkas logo & ikon: ukuran tepat, PNG valid, logo-mark tidak punya tepi kosong berlebih', function () {
