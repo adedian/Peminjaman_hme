@@ -53,13 +53,13 @@ Daftar unit PQA yang dipasang di lokasi klien — **terlihat oleh semua staff**.
 Setujui/tolak pemasangan, tambah waktu, dan pencabutan dari halaman **Tracker PQA**. Menyetujui pencabut otomatis menutup permintaan tambah waktu yang masih menggantung.
 
 ### 4.3 Barang
-**Barang** → *Tambah* (ID/kode unik, nama, kategori, foto opsional, centang *Unit PQA* bila perlu). *Ubah* kapan saja; ID terkunci bila barang sudah punya riwayat. **Nonaktifkan** menyembunyikan barang dari form pinjam tanpa menghapus riwayat — ditolak bila barang sedang dipinjam/dipasang. **Hapus permanen** hanya untuk barang yang belum pernah dipakai (mis. salah input); barang berriwayat tidak bisa dihapus, nonaktifkan saja. Foto otomatis diperkecil; maksimal 3 MB.
+**Barang** → *Tambah* (ID/kode unik, nama, kategori, foto opsional, centang *Unit PQA* bila perlu). *Ubah* kapan saja; ID terkunci bila barang sudah punya riwayat. Ketuk kartu barang lalu pilih **Hapus dari daftar pinjam** bila barang tidak boleh dipinjam lagi: barang hilang dari form peminjaman & PQA, sedangkan **data barang, foto, dan seluruh riwayat tetap tersimpan** (tampil dengan label *Tersembunyi*; pilih **Tampilkan lagi di daftar pinjam** untuk mengembalikannya). Barang yang sedang dipinjam/dipasang belum bisa dihapus dari daftar. *Hapus permanen (salah input)* hanya muncul untuk barang yang belum pernah dipakai sama sekali.
 
 ### 4.4 Rekap & laporan Excel
 **Rekap** → pilih bulan, tahun, rentang tanggal, atau semua data. Menampilkan total, status, peringkat alat, dan daftar aktif. **Unduh Excel** menghasilkan dua sheet: *Laporan Stok* dan *Transaksi Periode* (mengikuti filter). Unduhan tercatat di log aktivitas.
 
 ### 4.5 Pengguna
-**Pengguna** → tambah staff/admin, ubah nama/peran, **Reset password** (password baru ditampilkan sekali untuk diserahkan ke pengguna; pengguna tidak dipaksa menggantinya), isi **Nomor WhatsApp** untuk notifikasi, nonaktifkan. Anda tidak bisa menonaktifkan diri sendiri, dan harus selalu ada minimal satu admin aktif.
+**Pengguna** → tambah staff/admin, ubah nama/peran, **Reset password** (password baru ditampilkan sekali untuk diserahkan ke pengguna; pengguna tidak dipaksa menggantinya), nonaktifkan. Anda tidak bisa menonaktifkan diri sendiri, dan harus selalu ada minimal satu admin aktif.
 
 ### 4.6 Arsip Data Lama
 Catatan manual dan register inventaris dari sistem lama (hanya baca). Pada register, **Jadikan Master Barang** membuka form tambah barang yang sudah terisi nama. **Laporan Migrasi** menampilkan hasil perpindahan data; baris bertanda *perlu diperiksa* sebaiknya ditinjau sekali.
@@ -73,7 +73,7 @@ Catatan manual dan register inventaris dari sistem lama (hanya baca). Pada regis
 |---|---|
 | "Sistem sedang dalam pemeliharaan" | Sedang upgrade/pemulihan data. Tunggu beberapa menit lalu muat ulang |
 | Lupa password | Minta admin **Reset password** |
-| Barang tidak muncul di daftar pinjam | Sedang dipinjam/dipasang, atau dinonaktifkan |
+| Barang tidak muncul di daftar pinjam | Sedang dipinjam/dipasang, atau sudah dihapus dari daftar pinjam (label *Tersembunyi* di Master Barang) |
 | "Sesi berakhir" / diminta masuk lagi | Normal; masuk kembali. Isian yang belum diajukan perlu diulang |
 | Aksi ditolak karena barang sudah diambil | Pilih unit lain yang tersedia |
 | Notifikasi/halaman tidak terbarui | Periksa koneksi internet; muat ulang halaman |

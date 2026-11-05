@@ -13,7 +13,7 @@ View::share('sheets', View::render('partials/items_sheets', ['categories' => $ca
 $active = count(array_filter($items, static fn($i) => $i['is_active']));
 ?>
 <div class="section-head">
-  <h2><?= $active ?> barang aktif<?= $total - $active > 0 ? ' · ' . ($total - $active) . ' nonaktif' : '' ?></h2>
+  <h2><?= $active ?> barang aktif<?= $total - $active > 0 ? ' · ' . ($total - $active) . ' tersembunyi dari daftar pinjam' : '' ?></h2>
   <button class="btn primary" type="button" id="btn-add-item"><?= icon('plus') ?>Tambah</button>
 </div>
 
@@ -24,7 +24,7 @@ $active = count(array_filter($items, static fn($i) => $i['is_active']));
     <button type="button" data-status="" aria-pressed="true">Semua</button>
     <button type="button" data-status="Tersedia" aria-pressed="false">Tersedia</button>
     <button type="button" data-status="Dipinjam" aria-pressed="false">Dipinjam</button>
-    <button type="button" data-status="off" aria-pressed="false">Nonaktif</button>
+    <button type="button" data-status="off" aria-pressed="false">Tersembunyi</button>
   </div>
   <select class="select" id="cat-filter" aria-label="Filter kategori">
     <option value="">Semua kategori</option>
@@ -58,7 +58,7 @@ $active = count(array_filter($items, static fn($i) => $i['is_active']));
     <span class="inv-name"><?= e($i['name']) ?></span>
     <span class="inv-code"><?= e($i['code']) ?><?= $i['finance_ref'] !== null && $i['finance_ref'] !== '' ? ' · Ref ' . e($i['finance_ref']) : '' ?></span>
     <span class="inv-chips">
-      <?php if (!$i['is_active']): ?><span class="chip cancelled">Nonaktif</span>
+      <?php if (!$i['is_active']): ?><span class="chip cancelled">Tersembunyi</span>
       <?php elseif ($i['master_status'] === 'Dipinjam'): ?><span class="chip active">Dipinjam</span>
       <?php else: ?><span class="chip done">Tersedia</span><?php endif; ?>
       <?php if ($i['is_pqa']): ?><span class="chip info">PQA</span><?php endif; ?>

@@ -42,25 +42,22 @@
     if (!card) { return; }
     try { current = JSON.parse(card.getAttribute('data-item')); } catch (err) { return; }
     $('sa-title').textContent = current.name;
-    $('sa-sub').textContent = current.code + (current.active ? '' : ' · Nonaktif');
+    $('sa-sub').textContent = current.code + (current.active ? '' : ' · Tersembunyi dari daftar pinjam');
     var note = $('sa-note'), t = $('act-toggle');
     note.hidden = true;
-    t.textContent = current.active ? 'Nonaktifkan barang' : 'Aktifkan kembali';
+    t.textContent = current.active ? 'Hapus dari daftar pinjam' : 'Tampilkan lagi di daftar pinjam';
     t.className = 'btn ' + (current.active ? 'danger' : 'success');
     t.disabled = false;
     if (current.active && current.in_use) {
       t.disabled = true;
       note.hidden = false;
-      note.textContent = 'Barang ini sedang dipinjam atau memiliki pengajuan/pemasangan aktif sehingga belum dapat dinonaktifkan.';
+      note.textContent = 'Barang ini sedang dipinjam atau memiliki pengajuan/pemasangan aktif sehingga belum dapat dihapus dari daftar pinjam.';
     }
     // Hapus permanen hanya untuk barang yang belum pernah dipakai (tanpa riwayat); selain itu cukup dinonaktifkan.
     var d = $('act-delete');
+    d.hidden = !!current.has_history;
     d.disabled = !!current.has_history;
-    d.textContent = 'Hapus permanen';
-    if (current.has_history) {
-      d.title = 'Barang berriwayat tidak dapat dihapus; nonaktifkan saja.';
-      if (note.hidden) { note.hidden = false; note.textContent = 'Barang ini sudah memiliki riwayat transaksi sehingga tidak dapat dihapus permanen. Gunakan Nonaktifkan agar riwayat tetap tersimpan.'; }
-    } else { d.removeAttribute('title'); }
+    d.textContent = 'Hapus permanen (salah input)';
     ui.openSheet('sheet-actions');
   });
 
@@ -248,15 +245,15 @@
   $('act-toggle').addEventListener('click', function () {
     var it = current;
     if (it.active) {
-      ask('Nonaktifkan ' + it.name + '?', 'Barang tidak lagi muncul di form peminjaman. Riwayat transaksi tetap tersimpan dan barang dapat diaktifkan kembali kapan saja.', 'Ya, nonaktifkan', function () {
+      ask('Hapus ' + it.name + ' dari daftar pinjam?', 'Barang tidak lagi muncul di form peminjaman dan pemasangan PQA. Data barang, foto, dan seluruh riwayat TETAP tersimpan di Master Barang; Anda bisa menampilkannya lagi kapan saja.', 'Ya, hapus dari daftar pinjam', function () {
         api.post('/items/' + it.id + '/deactivate').then(function () {
-          ui.flashNext('Barang dinonaktifkan', it.name, 'ok'); window.location.reload();
+          ui.flashNext('Dihapus dari daftar pinjam', it.name + ' — data barang tetap ada', 'ok'); window.location.reload();
         }).catch(fail);
       });
     } else {
-      ask('Aktifkan kembali ' + it.name + '?', 'Barang akan muncul lagi di form peminjaman.', 'Ya, aktifkan', function () {
+      ask('Tampilkan ' + it.name + ' lagi di daftar pinjam?', 'Barang akan muncul lagi di form peminjaman dan pemasangan PQA.', 'Ya, tampilkan', function () {
         api.post('/items/' + it.id + '/activate').then(function () {
-          ui.flashNext('Barang diaktifkan', it.name, 'ok'); window.location.reload();
+          ui.flashNext('Ditampilkan lagi di daftar pinjam', it.name, 'ok'); window.location.reload();
         }).catch(fail);
       });
     }

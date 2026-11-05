@@ -55,7 +55,7 @@
     <div class="sheet-actions">
       <button class="btn dark-btn" type="button" id="act-edit"><?= icon('edit') ?>Ubah data barang</button>
       <button class="btn danger" type="button" id="act-toggle"></button>
-      <button class="btn danger" type="button" id="act-delete"><?= icon('x') ?>Hapus permanen</button>
+      <button class="btn ghost" type="button" id="act-delete" hidden><?= icon('x') ?>Hapus permanen (salah input)</button>
     </div>
   </div>
 </section>
