@@ -20,7 +20,7 @@ use Throwable;
  *  - Idempoten lewat kunci alami: username, kode barang, ID Pinjam (legacy_id), nomor baris sheet (PQA, arsip).
  *    Menjalankan ulang tidak menggandakan data; data yang sudah ada TIDAK ditimpa (mis. akun admin yang dibuat manual).
  *  - Setiap baris sumber mendapat catatan di migration_issues: ok / failed / duplicate / needs_review.
- *  - Password lama di-hash (password_hash) dan akun wajib ganti password saat login pertama; teks password tidak
+ *  - Password lama di-hash (password_hash) dan password lama tetap berlaku (tanpa paksa ganti); teks password tidak
  *    pernah ditulis ke log, laporan, maupun audit.
  */
 final class LegacyImporter
@@ -129,11 +129,11 @@ final class LegacyImporter
                 'username' => $username, 'password_hash' => password_hash($pass, PASSWORD_DEFAULT),
                 'name' => mb_substr($name !== '' ? $name : $username, 0, 100),
                 'initials' => mb_substr($label !== '' ? strtoupper($label) : strtoupper(substr($username, 0, 2)), 0, 4),
-                'role' => $role, 'is_active' => 1, 'must_change_password' => 1,
+                'role' => $role, 'is_active' => 1, 'must_change_password' => 0,
             ]);
             $this->userIds[$username] = $id;
             $this->bump('users_created');
-            $this->issue(LegacySource::SHEET_USERS, $r, 'ok', "Akun {$username} ({$role}) dibuat, wajib ganti password saat login pertama.", $raw);
+            $this->issue(LegacySource::SHEET_USERS, $r, 'ok', "Akun {$username} ({$role}) dibuat; password lama tetap berlaku (di-hash, tanpa paksa ganti).", $raw);
         }
     }
 

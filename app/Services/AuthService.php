@@ -48,7 +48,16 @@ final class AuthService
         }
 
         // Selalu verifikasi (hash tiruan bila user tidak ada) agar durasi sama.
-        $verified = password_verify($password, $user['password_hash'] ?? self::dummyHash());
+        // Kompatibilitas format lama: nilai yang BUKAN hash password_hash() dianggap teks asli dari sistem lama,
+        // dibandingkan secara konstan-waktu, lalu di-hash ulang secara transparan setelah login berhasil.
+        $stored = (string) ($user['password_hash'] ?? '');
+        $legacyPlain = $user !== null && $stored !== '' && (password_get_info($stored)['algo'] ?? null) === null;
+        if ($legacyPlain) {
+            password_verify($password, self::dummyHash());   // jaga durasi respons seragam
+            $verified = hash_equals($stored, $password);
+        } else {
+            $verified = password_verify($password, $user['password_hash'] ?? self::dummyHash());
+        }
         $ok = $user !== null && $verified && (int) $user['is_active'] === 1 && $user['role'] === $role;
 
         if (!$ok) {
@@ -58,11 +67,11 @@ final class AuthService
             throw new HttpException(401, 'invalid_credentials', self::GENERIC_FAIL);
         }
 
-        Database::transaction(function () use ($user, $key, $ip, $password): void {
+        Database::transaction(function () use ($user, $key, $ip, $password, $legacyPlain): void {
             Database::run('DELETE FROM login_attempts WHERE username = ? AND success = 0', [$key]);
             Database::insert('login_attempts', ['username' => $key, 'ip' => $ip, 'success' => 1]);
             $upd = ['last_login_at' => date('Y-m-d H:i:s')];
-            if (password_needs_rehash((string) $user['password_hash'], PASSWORD_DEFAULT)) {
+            if ($legacyPlain || password_needs_rehash((string) $user['password_hash'], PASSWORD_DEFAULT)) {
                 $upd['password_hash'] = password_hash($password, PASSWORD_DEFAULT);
             }
             Database::update('users', $upd, ['id' => $user['id']]);

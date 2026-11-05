@@ -8,7 +8,9 @@ use App\Core\Request;
 use App\Core\Response;
 
 /**
- * Akun hasil migrasi wajib mengganti password sebelum memakai fitur apa pun.
+ * Penjaga bila sebuah akun ditandai `must_change_password`. Sejak revisi V2 penanda itu TIDAK lagi diset oleh
+ * aplikasi mana pun (login pertama, migrasi, reset admin) — password lama dipertahankan. Penjaga dipertahankan
+ * sebagai pengaman bila penanda diset manual di database.
  * Dipasang pada semua route terautentikasi KECUALI ganti password, logout, dan profil.
  */
 final class ForcePasswordChangeMiddleware implements MiddlewareInterface

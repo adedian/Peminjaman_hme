@@ -35,7 +35,7 @@ $req = new Request('POST', '/', [], [], ['User-Agent' => 'child'], ['REMOTE_ADDR
 try {
     switch ($action) {
         case 'submit':
-            $r = LoanService::submit($user, ['item_ids' => $a['item_ids'], 'location' => 'Lokasi paralel'], $req);
+            $r = LoanService::submit($user, ['item_ids' => $a['item_ids'], 'due_at' => date('Y-m-d H:i', time() + 172800), 'location' => 'Lokasi paralel'], $req);
             echo json_encode(['ok' => true, 'request' => $r['id']]);
             break;
         case 'approve':
@@ -51,7 +51,7 @@ try {
             echo json_encode(['ok' => true]);
             break;
         case 'pqa_submit':
-            PqaService::submit($user, ['item_id' => $a['item_id'], 'ppic' => 'PPIC Paralel', 'location' => 'Lokasi paralel', 'install_team' => 'Tim', 'target_days' => 7], $req);
+            PqaService::submit($user, ['item_id' => $a['item_id'], 'ppic' => 'PPIC Paralel', 'location' => 'Lokasi paralel', 'planned_install_at' => date('Y-m-d H:i', time() + 3600), 'install_team' => 'Tim', 'target_days' => 7], $req);
             echo json_encode(['ok' => true]);
             break;
         case 'pqa_approve_extension':

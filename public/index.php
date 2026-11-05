@@ -47,7 +47,9 @@ $response = $response
     ->withHeader('X-Request-Id', Logger::requestId());
 
 // Ada email baru di antrean → selesaikan respons ke browser dulu, baru kirim email (pengguna tidak menunggu SMTP).
-$deferMail = MailService::hasQueued();
+$hasMail = MailService::hasQueued();
+$hasPush = \App\Services\PushService::hasQueued();
+$deferMail = $hasMail || $hasPush;
 if ($deferMail && !ini_get('zlib.output_compression') && $response->header('Content-Length') === null
     && $response->status() !== 204 && $response->status() !== 304) {
     $response = $response->withHeader('Content-Length', (string) strlen($response->body()));
@@ -67,5 +69,10 @@ if ($deferMail) {
         }
         flush();
     }
-    MailService::drain();
+    if ($hasMail) {
+        MailService::drain();
+    }
+    if ($hasPush) {
+        \App\Services\PushService::drain(10, 20);
+    }
 }

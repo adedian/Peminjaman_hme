@@ -15,7 +15,7 @@ function qUnit(string $name = 'PQA Uji'): int
 /** @param array<string,mixed> $o */
 function qSubmit(array $staff, int $item, array $o = []): array
 {
-    return PqaService::submit($staff, $o + ['item_id' => $item, 'ppic' => 'Naufal', 'location' => 'PT Uji Coba', 'install_team' => 'Rian, Vega', 'target_days' => 7], ureq());
+    return PqaService::submit($staff, $o + ['item_id' => $item, 'ppic' => 'Naufal', 'location' => 'PT Uji Coba', 'planned_install_at' => dueAt(1), 'install_team' => 'Rian, Vega', 'target_days' => 7], ureq());
 }
 
 /** Ajukan lalu setujui → unit Terpasang. */
@@ -82,7 +82,7 @@ t('Validasi: bukan unit PQA / tidak ada / nonaktif, kolom wajib, target hari —
     $f = fn(array $o) => qErr(fn() => qSubmit($s, $unit, $o))->fields();
 
     foreach ([$plain, 99999999, 0, -1, 'abc', [1], null] as $bad) {
-        $e = qErr(fn() => PqaService::submit($s, ['item_id' => $bad, 'ppic' => 'Naufal', 'location' => 'PT X', 'install_team' => 'Tim', 'target_days' => 7], ureq()));
+        $e = qErr(fn() => PqaService::submit($s, ['item_id' => $bad, 'ppic' => 'Naufal', 'location' => 'PT X', 'planned_install_at' => dueAt(1), 'install_team' => 'Tim', 'target_days' => 7], ureq()));
         eq(422, $e->status(), 'item_id ' . json_encode($bad));
         ok(isset($e->fields()['item_id']), 'item_id ' . json_encode($bad));
     }

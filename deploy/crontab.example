@@ -12,5 +12,10 @@ PHP=/usr/bin/php
 # Cek konsistensi data mingguan, Senin 03:30 (exit 1 + log bila ada pelanggaran)
 30 3 * * 1   $PHP $APP/tools/check-integrity.php >> $APP/storage/logs/cron-integrity.log 2>&1
 
+# PENJADWAL PENGINGAT (WAJIB untuk notifikasi WhatsApp otomatis): tiap 5 menit.
+# Menyusun pengingat jatuh tempo/keterlambatan peminjaman & PQA (H-1, melewati jadwal), lalu mengirim antrean WhatsApp
+# dan email tertunda. Tetap berjalan walau tidak ada pengguna yang membuka aplikasi.
+*/5 * * * *  $PHP $APP/tools/scheduler.php >> $APP/storage/logs/cron-scheduler.log 2>&1
+
 # Kirim ulang email tertunda tiap 10 menit (opsional; email biasanya sudah terkirim langsung)
 */10 * * * * $PHP $APP/tools/send-mail.php >> $APP/storage/logs/cron-mail.log 2>&1

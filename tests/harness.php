@@ -8,6 +8,9 @@ class AssertionFailed extends Exception {}
 $GLOBALS['__tests'] = [];
 $GLOBALS['__section'] = '';
 
+/** Batas pengembalian uji yang sah: 2 hari dari sekarang (format input datetime-local). */
+function dueAt(int $days = 2): string { return date('Y-m-d\TH:i', time() + $days * 86400); }
+
 function section(string $title): void { $GLOBALS['__section'] = $title; }
 
 function t(string $name, callable $fn): void

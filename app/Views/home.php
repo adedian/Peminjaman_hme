@@ -6,7 +6,8 @@
 use App\Core\View;
 
 $isAdmin = $user['role'] === 'admin';
-View::share('scripts', ['requests.js']);
+View::share('scripts', ['requests.js', 'dashboard.js']);
+View::share('styles', ['dashboard.css']);
 View::share('sheets', View::render('partials/requests_sheets', [], null));
 ?>
 <div id="req-config" hidden data-role="<?= e($user['role']) ?>" data-self="<?= (int) $user['id'] ?>"></div>
@@ -18,17 +19,19 @@ View::share('sheets', View::render('partials/requests_sheets', [], null));
   </section>
 <?php endif; ?>
 
-<section class="stats" aria-label="Ringkasan">
-  <?php if ($isAdmin): ?>
-    <a class="stat accent" href="<?= e(url('/requests?status=pending')) ?>"><small>Perlu review</small><strong class="num" data-stat="requests_pending"><?= (int) $summary['requests_pending'] ?></strong></a>
-    <a class="stat" href="<?= e(url('/requests?status=approved')) ?>"><small>Aktif</small><strong class="num" data-stat="approved"><?= (int) $summary['approved'] ?></strong></a>
-    <a class="stat" href="<?= e(url('/requests?status=returned')) ?>"><small>Selesai</small><strong class="num" data-stat="returned"><?= (int) $summary['returned'] ?></strong></a>
-  <?php else: ?>
-    <a class="stat accent" href="<?= e(url('/requests?status=approved')) ?>"><small>Aktif</small><strong class="num" data-stat="approved"><?= (int) $summary['approved'] ?></strong></a>
-    <a class="stat" href="<?= e(url('/requests?status=pending')) ?>"><small>Menunggu</small><strong class="num" data-stat="pending"><?= (int) $summary['pending'] ?></strong></a>
-    <a class="stat" href="<?= e(url('/requests?status=returned')) ?>"><small>Selesai</small><strong class="num" data-stat="returned"><?= (int) $summary['returned'] ?></strong></a>
-  <?php endif; ?>
-</section>
+<header class="dash-hello">
+  <div>
+    <h1>Halo, <?= e(explode(' ', trim((string) $user['name']))[0]) ?></h1>
+    <p><?= e(\App\Helpers\Idn::dateLong()) ?></p>
+  </div>
+  <span class="live" title="Data diperbarui otomatis">Data langsung</span>
+</header>
+
+<div class="dash" id="dash" data-role="<?= e($user['role']) ?>" data-base="<?= e(url('')) ?>" aria-busy="true" aria-live="polite">
+  <div class="skeleton" style="height:56px"></div>
+  <div class="skeleton" style="height:96px"></div>
+  <div class="skeleton" style="height:200px"></div>
+</div>
 
 <?php if ($isAdmin): ?>
   <section aria-labelledby="h-pend">

@@ -17,6 +17,7 @@ $isAdmin = $user['role'] === 'admin';
   <?php if ($isAdmin): ?>
     <button type="button" data-status="pending" aria-pressed="false">Menunggu</button>
     <button type="button" data-status="approved" aria-pressed="false">Aktif</button>
+    <button type="button" data-status="overdue" aria-pressed="false">Terlambat</button>
     <button type="button" data-status="returned" aria-pressed="false">Selesai</button>
     <button type="button" data-status="rejected" aria-pressed="false">Ditolak</button>
     <button type="button" data-status="cancelled" aria-pressed="false">Dibatalkan</button>
@@ -25,6 +26,7 @@ $isAdmin = $user['role'] === 'admin';
     <button type="button" data-status="" aria-pressed="false">Semua</button>
     <button type="button" data-status="pending" aria-pressed="false">Menunggu</button>
     <button type="button" data-status="approved" aria-pressed="false">Aktif</button>
+    <button type="button" data-status="overdue" aria-pressed="false">Terlambat</button>
     <button type="button" data-status="returned" aria-pressed="false">Selesai</button>
     <button type="button" data-status="rejected" aria-pressed="false">Ditolak</button>
     <button type="button" data-status="cancelled" aria-pressed="false">Dibatalkan</button>

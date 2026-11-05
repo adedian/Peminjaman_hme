@@ -147,7 +147,7 @@
 
   $('act-reset').addEventListener('click', function () {
     var u = current;
-    ask('Reset password ' + u.name + '?', 'Password lama tidak berlaku lagi, sesi aktif pengguna berakhir, dan pengguna wajib membuat password baru saat masuk. Password sementara akan ditampilkan sekali.', 'Ya, reset password', function () {
+    ask('Reset password ' + u.name + '?', 'Password lama tidak berlaku lagi dan sesi aktif pengguna berakhir. Password baru akan ditampilkan sekali untuk Anda serahkan ke pengguna.', 'Ya, reset password', function () {
       api.post('/users/' + u.id + '/reset-password').then(function (d) {
         showSecret('Password direset', '@' + u.username, d.temporary_password);
       }).catch(fail);

@@ -1,5 +1,26 @@
 # Catatan Perubahan
 
+## 2026-11-05 — Revisi V2b: PWA + notifikasi dari aplikasi (menggantikan WhatsApp) + logo "Peminjaman HME"
+- **PWA:** manifes, service worker (push, cache aset, halaman offline), ikon (192/512/maskable/iOS/favicon/lencana), tombol *Pasang aplikasi*.
+- **Notifikasi push** (Web Push + VAPID, tanpa layanan pihak ketiga): setiap notifikasi aplikasi otomatis diteruskan ke HP penerima. Peristiwa: peminjaman baru/dipinjam/dikembalikan, jatuh tempo & terlambat, PQA diajukan/dikonfirmasi/diperpanjang/dicabut/H-1/terlambat. Antrean idempoten, retry, perangkat kedaluwarsa dinonaktifkan, pengingat basi dibatalkan, anti-SSRF, logout melepas langganan.
+- **Profil:** Aktifkan/matikan notifikasi per perangkat, notifikasi uji, daftar perangkat. **Pengaturan (admin):** status push, jendela pengingat, log pengiriman + kirim ulang.
+- **Logo:** heksagon HME dipangkas rapi + tulisan "Peminjaman HME" (login, sidebar, header, offline); semua ikon dibuat ulang (`tools/make-icons.php`).
+- **WhatsApp dihapus** dari kode/UI/pengaturan (tabel & kolom lama dibiarkan, tidak dipakai). Migrasi 0015 (aditif).
+- Bug ditemukan tes & diperbaiki: service worker belum menyaring URL `javascript:` pada klik notifikasi.
+- Detail, cara mengaktifkan, dan status verifikasi (termasuk yang BELUM terbukti di perangkat nyata): `docs/16-pwa-notifikasi-push.md`.
+
+## 2026-11-05 — Revisi V2: dashboard, batas pengembalian, PQA berjadwal, WhatsApp, penjadwal (lulus uji otomatis; pengiriman WhatsApp nyata BELUM terverifikasi)
+- **Login:** tidak ada lagi paksa ganti password (login pertama / akun baru / reset admin / migrasi). Password lama dipertahankan; format lama (teks biasa) di-hash otomatis setelah login berhasil.
+- **Master Pengguna:** nomor WhatsApp (dinormalisasi, tersamar di log/audit).
+- **Peminjaman:** batas pengembalian wajib (maks. 30 hari, dapat diatur), status *Terlambat* otomatis, hitung mundur dari jam server, filter "Terlambat", pintasan batas waktu di form.
+- **PQA:** jadwal pasang & cabut berbasis jam aktual, riwayat perubahan durasi, pencabutan *kembali ke kantor* atau *pindah site* (pemasangan berikutnya terhubung), histori lokasi per unit.
+- **WhatsApp (Cloud API resmi):** antrean idempoten, template yang dapat diedit, retry bertahap, log + kirim ulang, webhook status (HMAC), pengaturan admin. Tanpa kredensial → pesan menunggu di antrean (bukan pura-pura terkirim).
+- **Penjadwal:** `php tools/scheduler.php` (cron 5 menit) — pengingat jatuh tempo/terlambat peminjaman, H-1/terlambat PQA, pengingat basi dibatalkan, log putaran; `check-env` memeriksa kesehatannya.
+- **Dashboard:** KPI, perlu-perhatian, grafik (SVG), jatuh tempo terdekat, PQA terpasang, aktivitas; realtime.
+- **Migrasi 0011–0014** (aditif; tanpa menghapus data). **Integritas:** 2 aturan baru (rantai pemindahan PQA, jadwal cabut).
+- Bug ditemukan tes & diperbaiki: parameter array pada webhook (500), nomor berspasi terpecah, overflow baris batas waktu di HP.
+- Detail, keputusan, cara mengaktifkan WhatsApp, dan status verifikasi: `docs/15-revisi-v2-implementasi.md`.
+
 ## 2026-11-04 — Hapus permanen master barang
 - `ItemService::delete` + `POST /api/v1/items/{id}/delete` (admin) + tombol **Hapus permanen** di menu aksi barang.
 - **Aturan:** hanya barang tanpa riwayat peminjaman/PQA (mis. salah input). Barang berriwayat ditolak `409 has_history` dan tombolnya nonaktif dengan penjelasan — gunakan Nonaktifkan, agar riwayat & rekap tetap utuh (BR-14). Foto & thumbnail ikut dihapus setelah transaksi berhasil; tercatat di audit log (`item.deleted`, memuat kode/nama) dan change feed; kode bekas barang terhapus bisa dipakai lagi.

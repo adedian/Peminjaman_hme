@@ -60,6 +60,15 @@ return [
         'timeout'    => Env::int('MAIL_TIMEOUT', 10),
     ],
 
+    // Notifikasi push ke HP/PC (PWA, Web Push + VAPID). Kunci dibuat dengan `php tools/generate-vapid.php`; privat HANYA di .env.
+    'push' => [
+        'vapid_public'  => Env::get('VAPID_PUBLIC_KEY', ''),
+        'vapid_private' => Env::get('VAPID_PRIVATE_KEY', ''),
+        'subject'       => Env::get('VAPID_SUBJECT', 'mailto:admin@example.com'),   // kontak pemilik server untuk layanan push
+        'timeout'       => Env::int('PUSH_TIMEOUT', 15),
+        'extra_hosts'   => Env::get('PUSH_EXTRA_HOSTS', ''),                        // host push tambahan (hanya untuk pengujian)
+    ],
+
     'upload' => [
         'max_bytes' => Env::int('UPLOAD_MAX_BYTES', 3 * 1024 * 1024),
     ],

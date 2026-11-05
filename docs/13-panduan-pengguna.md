@@ -59,7 +59,7 @@ Setujui/tolak pemasangan, tambah waktu, dan pencabutan dari halaman **Tracker PQ
 **Rekap** → pilih bulan, tahun, rentang tanggal, atau semua data. Menampilkan total, status, peringkat alat, dan daftar aktif. **Unduh Excel** menghasilkan dua sheet: *Laporan Stok* dan *Transaksi Periode* (mengikuti filter). Unduhan tercatat di log aktivitas.
 
 ### 4.5 Pengguna
-**Pengguna** → tambah staff/admin, ubah nama/peran, **Reset password** (pengguna wajib menggantinya saat masuk), nonaktifkan. Anda tidak bisa menonaktifkan diri sendiri, dan harus selalu ada minimal satu admin aktif.
+**Pengguna** → tambah staff/admin, ubah nama/peran, **Reset password** (password baru ditampilkan sekali untuk diserahkan ke pengguna; pengguna tidak dipaksa menggantinya), isi **Nomor WhatsApp** untuk notifikasi, nonaktifkan. Anda tidak bisa menonaktifkan diri sendiri, dan harus selalu ada minimal satu admin aktif.
 
 ### 4.6 Arsip Data Lama
 Catatan manual dan register inventaris dari sistem lama (hanya baca). Pada register, **Jadikan Master Barang** membuka form tambah barang yang sudah terisi nama. **Laporan Migrasi** menampilkan hasil perpindahan data; baris bertanda *perlu diperiksa* sebaiknya ditinjau sekali.
@@ -79,3 +79,12 @@ Catatan manual dan register inventaris dari sistem lama (hanya baca). Pada regis
 | Notifikasi/halaman tidak terbarui | Periksa koneksi internet; muat ulang halaman |
 
 Untuk kendala lain, sebutkan **ID permintaan** dari pesan error (kode pendek 12 karakter, juga ada di Log) kepada admin.
+
+## Revisi V2 — yang berubah untuk pengguna
+**Meminjam barang:** isi **Batas pengembalian** (tanggal & jam). Pintasan *Besok / 3 hari / 1 minggu / 2 minggu* hanya mengisi kolom; Anda bebas mengubahnya. Di daftar & detail tampil **sisa waktu**; bila lewat dan barang belum dikembalikan, statusnya otomatis **Terlambat**. Anda tetap mengonfirmasi pengembalian sendiri.
+
+**Pemasangan PQA:** isi tanggal & jam pemasangan, lokasi, durasi, dan catatan. Setelah admin mengonfirmasi, tampil **jadwal pencabutan** dan sisa waktunya. *Tambah waktu* menggeser jadwal (pengingat dihitung ulang). *Request cabut*: pilih **Kembali ke kantor** atau **Pindah ke site lain** (isi site tujuan dan target hari; admin lalu mengonfirmasi pemasangan di sana).
+
+**Notifikasi di HP (PWA):** buka **Profil → Notifikasi di HP → Aktifkan di perangkat ini** dan izinkan notifikasi. Pengingat batas pengembalian, keterlambatan, jadwal PQA, dan keputusan admin akan muncul di layar HP walau aplikasi ditutup. Pasang aplikasinya lewat kartu **Pasang aplikasi** (di iPhone: Bagikan → Tambah ke Layar Utama, lalu buka dari ikon). Saat Keluar, notifikasi di perangkat itu otomatis dimatikan.
+
+**Admin:** Beranda kini berupa dashboard. **Pengaturan → Notifikasi HP & pengingat** untuk status server, jendela pengingat, dan log pengiriman (ada tombol *Kirim ulang* untuk yang gagal). Penjadwal pengingat harus dipasang di cron server (lihat `deploy/crontab.example`) dan kunci VAPID dibuat sekali (`php tools/generate-vapid.php --write`).

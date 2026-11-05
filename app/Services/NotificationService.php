@@ -19,27 +19,48 @@ final class NotificationService
     public const MAX_LIST = 50;
 
     /**
+     * Buat notifikasi dalam aplikasi untuk tiap penerima; otomatis diantrekan sebagai push ke perangkat penerima.
+     *
      * @param array<int,int> $userIds penerima (duplikat & actor dibuang)
-     * @return int jumlah notifikasi dibuat
+     * @param array{dedupe_key?:string,entity_type?:string,entity_id?:int,due_ref?:string} $opts
+     *        dedupe_key: kunci idempotensi per penerima (pengingat terjadwal) — pemanggilan ulang tidak membuat notifikasi/push ganda;
+     *        entity_type/entity_id/due_ref: jadwal acuan agar pengingat basi dibatalkan sebelum dikirim.
+     * @return int jumlah notifikasi BARU dibuat
      */
-    public static function notify(array $userIds, string $type, string $title, ?string $body = null, ?string $link = null, ?int $actorId = null): int
+    public static function notify(array $userIds, string $type, string $title, ?string $body = null, ?string $link = null, ?int $actorId = null, array $opts = []): int
     {
         $ids = array_values(array_unique(array_filter(array_map('intval', $userIds), static fn(int $id): bool => $id > 0 && $id !== $actorId)));
         $n = 0;
         foreach ($ids as $uid) {
             try {
                 $id = Database::insert('notifications', [
-                    'user_id' => $uid,
-                    'type'    => substr($type, 0, 40),
-                    'title'   => mb_substr($title, 0, 150),
-                    'body'    => $body === null ? null : mb_substr($body, 0, 500),
-                    'link'    => $link === null ? null : substr($link, 0, 255),
+                    'user_id'     => $uid,
+                    'type'        => substr($type, 0, 40),
+                    'title'       => mb_substr($title, 0, 150),
+                    'body'        => $body === null ? null : mb_substr($body, 0, 500),
+                    'link'        => $link === null ? null : substr($link, 0, 255),
+                    'dedupe_key'  => isset($opts['dedupe_key']) ? substr((string) $opts['dedupe_key'], 0, 190) : null,
+                    'entity_type' => $opts['entity_type'] ?? null,
+                    'entity_id'   => $opts['entity_id'] ?? null,
+                    'due_ref'     => $opts['due_ref'] ?? null,
                 ]);
-                ChangeFeed::emit('notification', $id, 'created', $actorId, $uid);
-                $n++;
+            } catch (\PDOException $e) {
+                if ((int) ($e->errorInfo[1] ?? 0) === 1062) {
+                    continue;   // pengingat yang sama sudah pernah dibuat → idempoten
+                }
+                Logger::error('Notifikasi gagal dibuat', ['type' => $type, 'user' => $uid, 'err' => $e->getMessage()]);
+                continue;
             } catch (Throwable $e) {
                 Logger::error('Notifikasi gagal dibuat', ['type' => $type, 'user' => $uid, 'err' => $e->getMessage()]);
+                continue;
             }
+            $n++;
+            try {
+                ChangeFeed::emit('notification', $id, 'created', $actorId, $uid);
+            } catch (Throwable $e) {
+                Logger::error('Change feed notifikasi gagal', ['err' => $e->getMessage()]);
+            }
+            PushService::enqueueFor($id, $uid);   // tidak pernah melempar
         }
         return $n;
     }

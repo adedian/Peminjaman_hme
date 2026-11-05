@@ -35,6 +35,17 @@ use App\Core\View;
     <span class="hint" data-error-for="borrow_date"></span>
   </div>
   <div class="field">
+    <label for="f-due">Batas pengembalian <span class="req">*</span></label>
+    <input class="input" id="f-due" name="due_at" type="datetime-local" required>
+    <div class="chips" role="group" aria-label="Pintasan batas pengembalian" id="due-chips">
+      <button type="button" class="chip-btn" data-days="1">Besok</button>
+      <button type="button" class="chip-btn" data-days="3">3 hari</button>
+      <button type="button" class="chip-btn" data-days="7">1 minggu</button>
+      <button type="button" class="chip-btn" data-days="14">2 minggu</button>
+    </div>
+    <span class="hint" data-error-for="due_at">Tanggal dan jam barang harus kembali. Pengingat dikirim sebelum jatuh tempo.</span>
+  </div>
+  <div class="field">
     <label for="f-loc">Lokasi tujuan <span class="req">*</span></label>
     <input class="input" id="f-loc" name="location" autocomplete="off" maxlength="255" placeholder="Nama proyek atau lokasi" required>
     <span class="hint" data-error-for="location"></span>

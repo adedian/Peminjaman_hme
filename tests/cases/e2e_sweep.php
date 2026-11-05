@@ -67,12 +67,15 @@ function swLogSize(): int
 section('Tahap 7 — kebijakan akses seluruh rute (statis)');
 
 t('Setiap rute: publik hanya daftar putih; sisanya auth; semua penulisan ber-CSRF; hanya rute bersama yang tanpa peran', function () {
-    $public = ['GET /api/v1/health', 'POST /api/v1/auth/login', 'GET /login', 'POST /login', 'POST /api/v1/_csrf-probe'];
+    $public = ['GET /api/v1/health', 'POST /api/v1/auth/login', 'GET /login', 'POST /login', 'POST /api/v1/_csrf-probe',
+               'GET /manifest.webmanifest', 'GET /sw.js', 'GET /offline'];
+    $noCsrf = [];   // tidak ada penulisan tanpa CSRF
     // Rute yang sengaja bisa diakses kedua peran (pemisahan data ditegakkan di service, diuji per modul)
     $shared = [
         'GET /', 'GET /requests', 'GET /pqa', 'GET /notifications', 'GET /profile', 'GET /profile/password', 'POST /profile/password', 'POST /logout',
         'GET /media/items/{file}', 'GET /api/v1/me', 'POST /api/v1/auth/logout', 'POST /api/v1/me/password', 'GET /api/v1/items/available',
-        'GET /api/v1/loans/summary', 'GET /api/v1/requests', 'GET /api/v1/requests/{id:\d+}', 'GET /api/v1/pqa/units', 'GET /api/v1/pqa',
+        'GET /api/v1/loans/summary', 'GET /api/v1/dashboard', 'GET /api/v1/push/config', 'POST /api/v1/push/subscribe', 'POST /api/v1/push/unsubscribe',
+        'GET /api/v1/push/devices', 'POST /api/v1/push/devices/{id:\d+}/remove', 'POST /api/v1/push/test', 'GET /api/v1/requests', 'GET /api/v1/requests/{id:\d+}', 'GET /api/v1/pqa/units', 'GET /api/v1/pqa',
         'GET /api/v1/pqa/{id:\d+}', 'GET /api/v1/sync', 'GET /api/v1/notifications', 'GET /api/v1/notifications/count',
         'POST /api/v1/notifications/read-all', 'POST /api/v1/notifications/{id:\d+}/read',
     ];
@@ -84,7 +87,7 @@ t('Setiap rute: publik hanya daftar putih; sisanya auth; semua penulisan ber-CSR
         $k = swKey($r);
         $keys[] = $k;
         $mw = $r['middleware'];
-        if ($r['method'] !== 'GET' && !in_array('csrf', $mw, true)) { $problems[] = "{$k}: penulisan tanpa CSRF"; }
+        if ($r['method'] !== 'GET' && !in_array('csrf', $mw, true) && !in_array($k, $noCsrf, true)) { $problems[] = "{$k}: penulisan tanpa CSRF"; }
         if (in_array($k, $public, true)) { continue; }
         if (!in_array('auth', $mw, true)) { $problems[] = "{$k}: tanpa auth"; }
         if (!in_array($k, $noPwd, true) && !in_array('pwd', $mw, true)) { $problems[] = "{$k}: tanpa pwd"; }
@@ -241,8 +244,8 @@ t('Teks HTML di nama pengguna/barang, lokasi, catatan, PQA, notifikasi tampil te
     $staff = ['id' => $staffId, 'role' => 'staff', 'name' => 'Staff ' . $p, 'username' => 'e_staff'];
     $item = iMake(['name' => 'Alat ' . $p]);
     $unit = iMake(['name' => 'PQA ' . $p, 'is_pqa' => '1']);
-    $req = LoanService::submit($staff, ['item_ids' => [$item['id']], 'location' => 'Lokasi ' . $p, 'team' => 'Tim ' . $p, 'notes' => 'Catatan ' . $p], ureq());
-    PqaService::submit($staff, ['item_id' => $unit['id'], 'ppic' => 'PPIC ' . $p, 'location' => 'PQA di ' . $p, 'install_team' => 'Tim ' . $p, 'target_days' => 3], ureq());
+    $req = LoanService::submit($staff, ['item_ids' => [$item['id']], 'due_at' => dueAt(), 'location' => 'Lokasi ' . $p, 'team' => 'Tim ' . $p, 'notes' => 'Catatan ' . $p], ureq());
+    PqaService::submit($staff, ['item_id' => $unit['id'], 'ppic' => 'PPIC ' . $p, 'location' => 'PQA di ' . $p, 'planned_install_at' => dueAt(1), 'install_team' => 'Tim ' . $p, 'target_days' => 3], ureq());
     Database::run("INSERT INTO legacy_inventory_register (section, source_row, name, note) VALUES ('Uji', 99999, ?, ?)", ['Reg ' . $p, $p]);
     Database::run("INSERT INTO legacy_manual_loans (source_row, item_text, carrier_text, notes) VALUES (99999, ?, ?, ?)", ['Manual ' . $p, $p, $p]);
     try {

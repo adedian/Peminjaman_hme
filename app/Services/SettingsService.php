@@ -24,6 +24,12 @@ final class SettingsService
             'admin_notification_email' => (string) Setting::get('admin_notification_email', ''),
             'recipients'               => MailService::adminRecipients(),
             'mail'                     => MailService::status(),
+            // Notifikasi push (PWA) + aturan waktu peminjaman/PQA
+            'push_enabled'             => Setting::get('push_enabled', '1') !== '0',
+            'push'                     => PushService::status(),
+            'loan_max_days'            => Setting::int('loan_max_days', 30),
+            'loan_reminder_hours'      => Setting::int('loan_reminder_hours', 24),
+            'pqa_reminder_hours'       => Setting::int('pqa_reminder_hours', 24),
         ];
     }
 
@@ -34,6 +40,14 @@ final class SettingsService
      */
     public static function update(array $input, array $actor, Request $request): array
     {
+        $others = ['push_enabled', 'loan_max_days', 'loan_reminder_hours', 'pqa_reminder_hours'];
+        $hasOther = array_intersect($others, array_keys($input)) !== [];
+        if ($hasOther) {
+            self::updateOthers($input, $actor, $request);
+            if (!array_key_exists('admin_notification_email', $input)) {
+                return self::show();
+            }
+        }
         $raw = $input['admin_notification_email'] ?? null;
         if (!is_string($raw)) {
             throw new HttpException(422, 'validation_failed', 'Data yang dikirim belum valid.', ['admin_notification_email' => 'Isi minimal satu alamat email.']);
@@ -57,6 +71,47 @@ final class SettingsService
         AuditService::log('settings.updated', (int) $actor['id'], 'setting', 'admin_notification_email',
             ['admin_notification_email' => $before], ['admin_notification_email' => $value], $request);
         return self::show();
+    }
+
+    /**
+     * Saklar notifikasi push dan jendela pengingat/lama pinjam. Semua divalidasi dulu; tidak ada yang tersimpan
+     * bila salah satu tidak valid.
+     *
+     * @param array<string,mixed> $input
+     * @param array<string,mixed> $actor
+     */
+    private static function updateOthers(array $input, array $actor, Request $request): void
+    {
+        $errors = [];
+        $set = [];
+        if (array_key_exists('push_enabled', $input)) {
+            $v = $input['push_enabled'];
+            if (!is_bool($v) && !in_array($v, [0, 1, '0', '1'], true)) {
+                $errors['push_enabled'] = 'Nilai tidak valid.';
+            } else {
+                $set['push_enabled'] = ($v === true || $v === 1 || $v === '1') ? '1' : '0';
+            }
+        }
+        foreach (['loan_max_days' => [1, 365], 'loan_reminder_hours' => [1, 168], 'pqa_reminder_hours' => [1, 168]] as $k => [$lo, $hi]) {
+            if (array_key_exists($k, $input)) {
+                $v = $input[$k];
+                if ((!is_int($v) && !(is_string($v) && ctype_digit($v))) || (int) $v < $lo || (int) $v > $hi) {
+                    $errors[$k] = "Isi angka {$lo}–{$hi}.";
+                } else {
+                    $set[$k] = (string) (int) $v;
+                }
+            }
+        }
+        if ($errors !== []) {
+            throw new HttpException(422, 'validation_failed', 'Data yang dikirim belum valid.', $errors);
+        }
+        foreach ($set as $k => $v) {
+            $before = (string) Setting::get($k, '');
+            if ($before !== $v) {
+                Setting::set($k, $v);
+                AuditService::log('settings.updated', (int) $actor['id'], 'setting', $k, [$k => $before], [$k => $v], $request);
+            }
+        }
     }
 
     /**

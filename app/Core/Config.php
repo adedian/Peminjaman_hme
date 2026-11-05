@@ -29,6 +29,22 @@ final class Config
         return $node;
     }
 
+    /** Ganti satu nilai saat runtime (dipakai tes untuk mengganti driver; tidak menulis ke berkas). @param mixed $value */
+    public static function override(string $key, $value): void
+    {
+        $ref = &self::$items;
+        foreach (explode('.', $key) as $part) {
+            if (!is_array($ref)) {
+                $ref = [];
+            }
+            if (!array_key_exists($part, $ref)) {
+                $ref[$part] = null;
+            }
+            $ref = &$ref[$part];
+        }
+        $ref = $value;
+    }
+
     public static function isProduction(): bool
     {
         return self::get('app.env') === 'production';

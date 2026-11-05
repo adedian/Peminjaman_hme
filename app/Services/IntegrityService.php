@@ -44,6 +44,12 @@ final class IntegrityService
                 "SELECT CONCAT('pqa #', id) FROM pqa_installations
                  WHERE (status IN ('Terpasang','Req Cabut','Dicabut') AND installed_at IS NULL)
                     OR (status = 'Dicabut' AND (removed_at IS NULL OR total_days IS NULL))",
+            'Rantai pemindahan PQA saling menunjuk (pemasangan sebelumnya <-> berikutnya)' =>
+                "SELECT CONCAT('pqa #', p.id) FROM pqa_installations p
+                 WHERE (p.next_installation_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM pqa_installations n WHERE n.id = p.next_installation_id AND n.previous_installation_id = p.id))
+                    OR (p.previous_installation_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM pqa_installations n WHERE n.id = p.previous_installation_id AND n.next_installation_id = p.id))",
+            'Setiap PQA Terpasang/Req Cabut punya jadwal cabut (due_at)' =>
+                "SELECT CONCAT('pqa #', id) FROM pqa_installations WHERE status IN ('Terpasang','Req Cabut') AND due_at IS NULL",
             'Permintaan tambah waktu hanya pada PQA aktif' =>
                 "SELECT CONCAT('pqa #', id) FROM pqa_installations WHERE pending_extension_days > 0 AND status NOT IN ('Terpasang','Req Cabut')",
             'Minimal satu admin aktif (Q7)' =>

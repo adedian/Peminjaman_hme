@@ -15,7 +15,8 @@
     approved:  { label: 'Dipinjam',  cls: 'active' },
     returned:  { label: 'Selesai',   cls: 'done' },
     rejected:  { label: 'Ditolak',   cls: 'rejected' },
-    cancelled: { label: 'Dibatalkan', cls: 'cancelled' }
+    cancelled: { label: 'Dibatalkan', cls: 'cancelled' },
+    overdue:   { label: 'Terlambat', cls: 'rejected' }
   };
 
   // ---------------------------------------------------------------- pembantu DOM -----------
@@ -75,6 +76,31 @@
     var first = r.loans[0] ? r.loans[0].item.name : '—';
     return r.loans.length > 1 ? first + ' +' + (r.loans.length - 1) : first;
   }
+
+  // ---------------------------------------------------------------- sisa waktu -----------
+  // Sisa waktu dikirim server (detik) dan dihitung maju dengan jam monotonik browser → tidak bergantung jam perangkat.
+  function remainText(sec) {
+    var late = sec < 0, a = Math.abs(sec), d = Math.floor(a / 86400), hr = Math.floor((a % 86400) / 3600), mn = Math.floor((a % 3600) / 60);
+    var t = d > 0 ? d + ' hari ' + hr + ' jam' : (hr > 0 ? hr + ' jam ' + mn + ' mnt' : Math.max(mn, 1) + ' mnt');
+    return (late ? 'Terlambat ' : 'Sisa ') + t;
+  }
+  function countdown(sec) {
+    var s = h('span', 'countdown' + (sec < 0 ? ' late' : ''));
+    s.setAttribute('data-rem', String(sec));
+    s.setAttribute('data-t0', String(Math.floor(performance.now() / 1000)));
+    s.textContent = remainText(sec);
+    return s;
+  }
+  function tickCountdowns() {
+    var now = Math.floor(performance.now() / 1000);
+    document.querySelectorAll('.countdown[data-rem]').forEach(function (e) {
+      var sec = parseInt(e.getAttribute('data-rem'), 10) - (now - parseInt(e.getAttribute('data-t0'), 10));
+      e.textContent = remainText(sec);
+      e.classList.toggle('late', sec < 0);
+    });
+  }
+  setInterval(tickCountdowns, 30000);
+
   function errToast(err, title) { ui.toast(title || 'Tidak dapat diproses', err.message, 'err'); }
 
   // ---------------------------------------------------------------- kartu ----------------
@@ -100,7 +126,7 @@
     sub.appendChild(h('span', '', r.loans.length + ' barang · ' + fmtDate(r.created_at)));
     meta.appendChild(sub);
     top.appendChild(meta);
-    top.appendChild(chip(r.status));
+    top.appendChild(chip(r.overdue ? 'overdue' : r.status));
     card.appendChild(top);
 
     var facts = h('div', 'facts');
@@ -110,7 +136,19 @@
       d.appendChild(h('strong', '', p[1]));
       facts.appendChild(d);
     });
-    card.appendChild(facts);
+    if (r.due_at && (r.counts.approved > 0 || r.counts.pending > 0)) {
+      var due = h('div');
+      due.appendChild(h('small', '', 'Batas kembali'));
+      var ds = h('strong', '', fmtDateTime(r.due_at));
+      if (r.remaining_seconds !== null && r.counts.approved > 0) { ds.appendChild(document.createTextNode(' · ')); ds.appendChild(countdown(r.remaining_seconds)); }
+      due.appendChild(ds);
+      var dueRow = h('div', 'facts due-row');
+      dueRow.appendChild(due);
+      card.appendChild(facts);
+      card.appendChild(dueRow);
+    } else {
+      card.appendChild(facts);
+    }
 
     // Aksi cepat langsung di kartu
     if (ADMIN && r.can.approve) {
@@ -213,7 +251,7 @@
     big.id = 'rq-title';
     left.appendChild(big);
     head.appendChild(left);
-    var c = chip(r.status);
+    var c = chip(r.overdue ? 'overdue' : r.status);
     c.className = 'chip on-dark';
     head.appendChild(c);
     body.appendChild(head);
@@ -224,11 +262,19 @@
     body.appendChild(kv([
       ['Peminjam', ADMIN ? r.user.name + ' (@' + r.user.username + ')' : null, true],
       ['Dibawa', fmtDateTime(r.borrowed_at)],
+      ['Batas kembali', r.due_at ? fmtDateTime(r.due_at) : null],
       ['Diajukan', fmtDateTime(r.created_at)],
       ['Lokasi tujuan', r.location, true],
       ['Tim', r.team, true],
       ['Keterangan', r.notes, true]
     ]));
+    if (r.due_at && r.remaining_seconds !== null && r.counts.approved > 0) {
+      var cd = h('p', 'countdown-line');
+      cd.appendChild(countdown(r.remaining_seconds));
+      body.appendChild(cd);
+    } else if (r.counts.returned > 0 && r.loans[0] && r.loans[0].returned_at) {
+      body.appendChild(h('p', 'countdown-line', 'Dikembalikan ' + fmtDateTime(r.loans[0].returned_at)));
+    }
     body.appendChild(h('hr'));
     var items = h('div', 'items-col');
     r.loans.forEach(function (l) { items.appendChild(itemLine(r, l)); });

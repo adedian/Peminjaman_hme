@@ -77,6 +77,10 @@ final class LoanService
         foreach ($rows as $r) {
             $out[(string) $r['status']] = (int) $r['n'];
         }
+        $out['overdue'] = (int) Database::value(
+            "SELECT COUNT(*) FROM loans WHERE status = 'approved' AND due_at IS NOT NULL AND due_at < NOW()" . ($viewer['role'] === 'admin' ? '' : ' AND user_id = ?'),
+            $viewer['role'] === 'admin' ? [] : [(int) $viewer['id']]
+        );
         $out['requests_pending'] = (int) Database::value(
             "SELECT COUNT(DISTINCT batch_id) FROM loans WHERE status = 'pending'" . ($viewer['role'] === 'admin' ? '' : ' AND user_id = ?'),
             $viewer['role'] === 'admin' ? [] : [(int) $viewer['id']]
@@ -100,7 +104,7 @@ final class LoanService
     public static function listRequests(array $viewer, array $filters = [], int $limit = 30, int $offset = 0): array
     {
         $f = Validator::make($filters, [
-            'status'  => 'nullable|in:pending,approved,returned,rejected,cancelled,open',
+            'status'  => 'nullable|in:pending,approved,returned,rejected,cancelled,open,overdue',
             'q'       => 'nullable|string|max:100',
             'user_id' => 'nullable|int|min:1',
         ])->validate();
@@ -118,6 +122,8 @@ final class LoanService
         }
         if ($f['status'] === 'open') {
             $where[] = "l.status IN ('pending','approved')";
+        } elseif ($f['status'] === 'overdue') {
+            $where[] = "l.status = 'approved' AND l.due_at IS NOT NULL AND l.due_at < NOW()";
         } elseif ($f['status'] !== null) {
             $where[] = 'l.status = ?';
             $params[] = $f['status'];
@@ -206,7 +212,8 @@ final class LoanService
                             'item_name_snapshot'    => (string) $items[$itemId]['name'],
                             'carrier_name_snapshot' => (string) $user['name'],
                             'borrowed_at'           => $borrowedAt,
-                            'team'                  => $d['team'],
+                            'due_at'                => $d['due_at'],
+                            'team'                => $d['team'],
                             'location'              => $d['location'],
                             'notes'                 => $d['notes'],
                             'status'                => 'pending',
@@ -468,7 +475,7 @@ final class LoanService
 
     /**
      * @param array<string,mixed> $input
-     * @return array{item_ids:array<int,int>,borrow_date:string,team:?string,location:string,notes:?string}
+     * @return array{item_ids:array<int,int>,borrow_date:string,due_at:string,team:?string,location:string,notes:?string}
      */
     private static function validateSubmit(array $input): array
     {
@@ -506,6 +513,13 @@ final class LoanService
         if (!isset($errors['borrow_date']) && ($input['borrow_date'] < self::DATE_MIN || $input['borrow_date'] > date('Y-m-d', strtotime('+1 year')))) {
             $errors['borrow_date'] = 'Tanggal pinjam di luar rentang yang wajar.';
         }
+        $due = null;
+        if (!isset($errors['borrow_date'])) {
+            [$due, $dueErr] = self::parseDue($input['due_at'] ?? null, (string) $input['borrow_date']);
+            if ($dueErr !== null) {
+                $errors['due_at'] = $dueErr;
+            }
+        }
         if ($errors !== []) {
             throw new HttpException(422, 'validation_failed', 'Data yang dikirim belum valid.', $errors);
         }
@@ -513,10 +527,47 @@ final class LoanService
         return [
             'item_ids'    => $ids,
             'borrow_date' => (string) $c['borrow_date'],
+            'due_at'      => (string) $due,
             'team'        => $c['team'] === null ? null : (string) $c['team'],
             'location'    => (string) $c['location'],
             'notes'       => $c['notes'] === null ? null : (string) $c['notes'],
         ];
+    }
+
+    /**
+     * Batas pengembalian (wajib). Format "YYYY-MM-DD HH:MM" atau "YYYY-MM-DDTHH:MM" (input datetime-local), waktu WIB.
+     * Harus setelah saat ini dan setelah waktu pinjam, dan paling lama `loan_max_days` hari dari yang lebih akhir
+     * di antara keduanya.
+     *
+     * @param mixed $raw
+     * @return array{0:?string,1:?string} [nilai 'Y-m-d H:i:00' | null, pesan galat | null]
+     */
+    public static function parseDue($raw, string $borrowDate): array
+    {
+        if (!is_string($raw) || trim($raw) === '') {
+            return [null, 'Batas pengembalian wajib diisi.'];
+        }
+        $s = str_replace('T', ' ', trim($raw));
+        if (!preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}(:\d{2})?$/', $s)) {
+            return [null, 'Format batas pengembalian tidak valid.'];
+        }
+        $s = substr($s, 0, 16);
+        $dt = \DateTimeImmutable::createFromFormat('!Y-m-d H:i', $s);
+        $errs = \DateTimeImmutable::getLastErrors();
+        if ($dt === false || ($errs !== false && ($errs['warning_count'] > 0 || $errs['error_count'] > 0))) {
+            return [null, 'Batas pengembalian bukan tanggal/jam yang valid.'];
+        }
+        $now = new \DateTimeImmutable('now');
+        $borrowed = new \DateTimeImmutable($borrowDate . ' ' . $now->format('H:i:s'));
+        $base = $borrowed > $now ? $borrowed : $now;
+        if ($dt <= $base) {
+            return [null, 'Batas pengembalian harus setelah waktu peminjaman.'];
+        }
+        $max = \App\Models\Setting::int('loan_max_days', 30);
+        if ($dt > $base->modify('+' . $max . ' days')) {
+            return [null, 'Batas pengembalian maksimal ' . $max . ' hari dari waktu peminjaman.'];
+        }
+        return [$dt->format('Y-m-d H:i:00'), null];
     }
 
     /** Pertahanan berlapis: aturan peran juga dijaga di service, bukan hanya di middleware route. @param array<string,mixed> $user */
@@ -631,7 +682,8 @@ final class LoanService
         $in = implode(',', array_fill(0, count($batchIds), '?'));
         $rows = Database::all(
             "SELECT l.id, l.batch_id, l.legacy_id, l.seq_no, l.user_id, l.item_id, l.item_name_snapshot, l.carrier_name_snapshot,
-                    l.borrowed_at, l.returned_at, l.team, l.location, l.notes, l.status, l.decided_at, l.cancelled_at, l.created_at,
+                    l.borrowed_at, l.due_at, TIMESTAMPDIFF(SECOND, NOW(), l.due_at) AS due_in, l.returned_at, l.team, l.location, l.notes,
+                    l.status, l.decided_at, l.cancelled_at, l.created_at,
                     i.code AS item_code, i.photo_path, i.is_pqa, b.legacy_prefix, u.name AS user_name, u.username, u.initials
              FROM loans l JOIN items i ON i.id = l.item_id JOIN loan_batches b ON b.id = l.batch_id JOIN users u ON u.id = l.user_id
              WHERE l.batch_id IN ({$in}) ORDER BY l.seq_no, l.id",
@@ -660,6 +712,10 @@ final class LoanService
                 ],
                 'decided_at'  => $r['decided_at'],
                 'returned_at' => $r['returned_at'],
+                'due_at'      => $r['due_at'],
+                // Sisa waktu dihitung di server (jam DB) agar countdown di browser tidak bergantung jam perangkat
+                'remaining_seconds' => ($r['due_at'] !== null && in_array($status, ['pending', 'approved'], true)) ? (int) $r['due_in'] : null,
+                'overdue'     => $status === 'approved' && $r['due_at'] !== null && (int) $r['due_in'] < 0,
                 'can'         => [
                     'approve' => $isAdmin && $status === 'pending',
                     'reject'  => $isAdmin && $status === 'pending',
@@ -674,6 +730,7 @@ final class LoanService
                     'code'        => $r['legacy_prefix'] === null ? 'REQ-' . $bid : (string) $r['legacy_prefix'],
                     'user'        => ['id' => (int) $r['user_id'], 'name' => (string) $r['user_name'], 'username' => (string) $r['username'], 'initials' => (string) $r['initials']],
                     'borrowed_at' => (string) $r['borrowed_at'],
+                    'due_at'      => $r['due_at'],
                     'team'        => $r['team'],
                     'location'    => (string) $r['location'],
                     'notes'       => $r['notes'],
@@ -689,13 +746,23 @@ final class LoanService
             }
             $loans = $groups[$bid]['loans'];
             $counts = array_fill_keys(self::STATUSES, 0);
+            $overdue = 0;
+            $remaining = null;
             foreach ($loans as $l) {
                 $counts[$l['status']]++;
+                $overdue += $l['overdue'] ? 1 : 0;
+                if ($l['status'] === 'approved' && $l['remaining_seconds'] !== null) {
+                    $remaining = $remaining === null ? $l['remaining_seconds'] : min($remaining, $l['remaining_seconds']);
+                }
             }
             $out[] = $groups[$bid]['meta'] + [
                 'loans'  => $loans,
                 'counts' => $counts,
                 'status' => self::overall($counts),
+                'overdue' => $overdue > 0,                  // Terlambat (turunan): approved + lewat batas
+                'overdue_count' => $overdue,
+                'remaining_seconds' => $remaining,          // sisa waktu terkecil di antara barang yang sedang dipinjam
+
                 'can'    => [
                     'approve' => $counts['pending'] > 0 && $isAdmin,
                     'reject'  => $counts['pending'] > 0 && $isAdmin,

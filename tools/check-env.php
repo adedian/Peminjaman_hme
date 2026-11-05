@@ -87,6 +87,27 @@ try {
         : $line('fail', 'Migrasi database', "{$applied}/" . count($files) . ' — jalankan: php database/migrate.php');
     $admins = (int) $pdo->query("SELECT COUNT(*) FROM users WHERE role='admin' AND is_active=1")->fetchColumn();
     $admins > 0 ? $line('ok', 'Admin aktif', (string) $admins) : $line('warn', 'Admin aktif', 'belum ada — buat dengan: php tools/create-admin.php --username=... --name="..."');
+
+    // Penjadwal pengingat & notifikasi push (revisi V2)
+    $last = $pdo->query("SELECT value FROM settings WHERE key_name = 'scheduler_last_run'")->fetchColumn();
+    if ($last === false || $last === '') {
+        $line('warn', 'Penjadwal pengingat', 'belum pernah jalan — pasang cron: */5 * * * * php tools/scheduler.php (lihat deploy/crontab.example)');
+    } else {
+        $age = time() - (int) strtotime((string) $last);
+        $age <= 900
+            ? $line('ok', 'Penjadwal pengingat', "terakhir jalan {$last} (" . (int) round($age / 60) . ' menit lalu)')
+            : $line('warn', 'Penjadwal pengingat', "terakhir jalan {$last} (" . (int) round($age / 60) . ' menit lalu) — cek cron');
+    }
+    if (\App\Services\WebPush::configured()) {
+        $dev = (int) $pdo->query('SELECT COUNT(*) FROM push_subscriptions WHERE is_active = 1')->fetchColumn();
+        $line('ok', 'Notifikasi HP (Web Push)', "VAPID terisi · {$dev} perangkat berlangganan");
+        $stuck = (int) $pdo->query("SELECT COUNT(*) FROM push_outbox WHERE status = 'pending' AND created_at < (NOW() - INTERVAL 1 HOUR)")->fetchColumn();
+        $failedPush = (int) $pdo->query("SELECT COUNT(*) FROM push_outbox WHERE status = 'failed' AND created_at > (NOW() - INTERVAL 7 DAY)")->fetchColumn();
+        $stuck > 0 ? $line('warn', 'Antrean push', "{$stuck} pesan menunggu > 1 jam (cron penjadwal?)") : $line('ok', 'Antrean push tidak menumpuk');
+        $failedPush > 0 ? $line('warn', 'Push gagal 7 hari terakhir', "{$failedPush} pesan — lihat Pengaturan → Log pengiriman") : $line('ok', 'Tidak ada push gagal (7 hari)');
+    } else {
+        $line('warn', 'Notifikasi HP (Web Push)', 'kunci VAPID belum diisi — notifikasi hanya tampil di aplikasi. Buat: php tools/generate-vapid.php --write');
+    }
 } catch (Throwable $e) {
     $line('fail', 'Koneksi database', 'gagal: periksa DB_* di .env');
 }

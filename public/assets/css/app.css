@@ -254,3 +254,47 @@ a.quick-card { color: inherit; }
 
 /* Tahap 7: tautan teks di kepala bagian ("Lihat semua") punya area sentuh ≥ 44 px tanpa mengubah tata letak */
 .section-head .link { display: inline-flex; align-items: center; min-height: 44px; padding: 0 var(--s-2); margin: -13px calc(var(--s-2) * -1) -13px 0; }
+
+/* Sisa waktu peminjaman (R3) */
+.countdown { font-variant-numeric: tabular-nums; font-weight: 600; }
+.countdown.late { color: var(--danger); }
+.countdown-line { margin: var(--s-3, 12px) 0 0; font-size: .875rem; }
+.sheet .countdown.late { color: #FF8A8E; }
+
+/* Pilihan bergaya kartu (tujuan pencabutan PQA, dst.) */
+.choice { border: 0; padding: 0; margin: 0 0 var(--s-4, 16px); display: grid; gap: 8px; min-width: 0; }
+.choice legend { font-size: .8125rem; font-weight: 600; margin-bottom: 8px; padding: 0; }
+.choice-opt { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border: 1px solid var(--line, rgb(255 255 255 / .14)); border-radius: 12px; cursor: pointer; min-height: 44px; }
+.choice-opt input { margin-top: 3px; accent-color: var(--accent, #FF6B2C); flex: none; }
+.choice-opt strong { display: block; font-size: .9375rem; }
+.choice-opt small { display: block; opacity: .7; font-size: .8125rem; margin-top: 2px; }
+.choice-opt:has(input:checked) { border-color: var(--accent, #FF6B2C); }
+
+/* Baris jadwal/batas waktu pada kartu: boleh membungkus, rata kiri (tidak terpotong di HP) */
+.facts.due-row { justify-content: flex-start; margin-top: 2px; }
+.facts.due-row div:last-child { text-align: left; }
+.facts.due-row strong { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
+
+/* ---- Poles R8: pintasan, fokus, gerak halus ---- */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.chip-btn { appearance: none; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink-2); font: inherit; font-size: var(--fs-sm); padding: 0 14px; min-height: 36px; border-radius: var(--r-pill); cursor: pointer; transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast), transform var(--t-fast); }
+.chip-btn:hover { border-color: var(--accent); color: var(--ink); }
+.chip-btn:active { transform: scale(.97); }
+.chip-btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-strong); font-weight: var(--fw-semibold); }
+:where(a, button, input, select, textarea, [tabindex]):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn, .card, .row, .quick-card, .mini-btn { transition: transform var(--t-fast) var(--ease), box-shadow var(--t-base) var(--ease), background var(--t-fast); }
+.btn:active, .mini-btn:active { transform: scale(.98); }
+.num, .countdown, .kpi-value { font-variant-numeric: tabular-nums; }
+.section-head h2 { font-size: var(--fs-md); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
+
+/* ---- Logo "Peminjaman HME": tanda heksagon + tulisan ---- */
+.brandmark { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ink); flex: none; min-height: var(--tap); }
+.brandmark img { width: 34px; height: auto; display: block; }
+.bm-text { display: grid; line-height: 1; gap: 2px; }
+.bm-text small { font-size: 9.5px; font-weight: var(--fw-semibold); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.bm-text b { font-size: 1.0625rem; font-weight: var(--fw-bold); letter-spacing: .02em; }
+.auth-logo { width: 112px; }
+.sidebar .brand img { width: 40px; height: auto; background: none; padding: 0; border-radius: 0; }
+.topbar .brandmark + .who { min-width: 0; }
+@media (max-width: 420px) { .topbar .brandmark .bm-text small { display: none; } .topbar .brandmark .bm-text b { font-size: .9375rem; } }

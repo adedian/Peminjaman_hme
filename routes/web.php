@@ -8,6 +8,7 @@ use App\Controllers\Web\ItemPageController;
 use App\Controllers\Web\MediaController;
 use App\Controllers\Web\PqaPageController;
 use App\Controllers\Web\ProfileController;
+use App\Controllers\Web\PwaController;
 use App\Controllers\Web\ReportPageController;
 use App\Controllers\Web\RequestPageController;
 use App\Controllers\Web\UserPageController;
@@ -17,6 +18,10 @@ use App\Core\Router;
 
 // Publik
 $router->get('/login', [AuthController::class, 'showLogin']);
+// PWA (publik, tanpa data pengguna): manifes, service worker, halaman offline
+$router->get('/manifest.webmanifest', [PwaController::class, 'manifest']);
+$router->get('/sw.js', [PwaController::class, 'serviceWorker']);
+$router->get('/offline', [PwaController::class, 'offline']);
 $router->post('/login', [AuthController::class, 'login']);
 
 // Login diperlukan (boleh sebelum mengganti password sementara)

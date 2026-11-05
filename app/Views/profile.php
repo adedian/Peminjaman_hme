@@ -4,7 +4,7 @@
  * @var array<string,string> $errors
  * @var bool $forced
  */
-\App\Core\View::share('scripts', ['profile.js']);
+\App\Core\View::share('scripts', ['profile.js', 'push.js']);
 $err = static fn(string $k): string => isset($errors[$k]) ? (string) $errors[$k] : '';
 ?>
 <?php if ($forced): ?>
@@ -18,6 +18,31 @@ $err = static fn(string $k): string => isset($errors[$k]) ? (string) $errors[$k]
     <div class="sub">@<?= e($user['username']) ?> · <?= $user['role'] === 'admin' ? 'Admin' : 'Staff' ?></div>
   </div>
 </section>
+
+<?php if (!$forced): ?>
+<section class="card stack" id="push-card" aria-labelledby="h-push">
+  <h2 id="h-push" class="card-title"><?= icon('bell') ?>Notifikasi di HP</h2>
+  <p class="recap-note">Terima pengingat batas pengembalian, keterlambatan, jadwal PQA, dan keputusan permohonan sebagai notifikasi di layar HP — walau aplikasi sedang ditutup. Aktifkan satu kali di tiap perangkat.</p>
+  <div id="push-state" role="status" aria-live="polite"><span class="chip pending">Memeriksa…</span></div>
+  <div class="btn-row">
+    <button class="btn primary" type="button" id="push-on" hidden><?= icon('bell') ?>Aktifkan di perangkat ini</button>
+    <button class="btn ghost" type="button" id="push-test" hidden>Kirim notifikasi uji</button>
+    <button class="btn ghost" type="button" id="push-off" hidden>Matikan di perangkat ini</button>
+  </div>
+  <p class="hint" id="push-help"></p>
+  <div id="push-devices-wrap" hidden>
+    <small class="sheet-note" style="color:var(--muted)">Perangkat Anda yang menerima notifikasi</small>
+    <div class="list" id="push-devices"></div>
+  </div>
+</section>
+
+<section class="card stack" id="install-card" aria-labelledby="h-install" hidden>
+  <h2 id="h-install" class="card-title"><?= icon('home') ?>Pasang aplikasi</h2>
+  <p class="recap-note">Pasang Peminjaman HME di layar utama agar terbuka seperti aplikasi biasa dan bisa menerima notifikasi.</p>
+  <button class="btn primary" type="button" id="pwa-install" hidden>Pasang aplikasi</button>
+  <p class="hint" id="pwa-install-help"></p>
+</section>
+<?php endif; ?>
 
 <section class="card" aria-labelledby="h-pw">
   <h2 id="h-pw" class="card-title"><?= icon('key') ?>Ganti password</h2>

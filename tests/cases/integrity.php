@@ -16,12 +16,12 @@ t('Database bersih + alur nyata (pinjam, kembali, batal, PQA) → konsisten; set
         $s2 = ['id' => aUser('int_staff2'), 'role' => 'staff', 'name' => 'Int Staff 2', 'username' => 'int_staff2'];
         [$a, $b, $c] = [iMake(['name' => 'Int A'])['id'], iMake(['name' => 'Int B'])['id'], iMake(['name' => 'Int C'])['id']];
         $u = iMake(['name' => 'Int PQA', 'is_pqa' => '1'])['id'];
-        $r1 = LoanService::submit($s, ['item_ids' => [$a, $b], 'location' => 'Lokasi Uji'], ureq());
+        $r1 = LoanService::submit($s, ['item_ids' => [$a, $b], 'due_at' => dueAt(), 'location' => 'Lokasi Uji'], ureq());
         LoanService::approveRequest($r1['id'], $adm, ureq());
         LoanService::returnLoan((int) $r1['loans'][0]['id'], $s, ureq());
-        $r2 = LoanService::submit($s2, ['item_ids' => [$c], 'location' => 'Lokasi Dua'], ureq());
+        $r2 = LoanService::submit($s2, ['item_ids' => [$c], 'due_at' => dueAt(), 'location' => 'Lokasi Dua'], ureq());
         LoanService::cancelRequest($r2['id'], $s2, ureq());
-        $p = PqaService::submit($s, ['item_id' => $u, 'ppic' => 'Int', 'location' => 'PT Integritas', 'install_team' => 'Tim', 'target_days' => 5], ureq());
+        $p = PqaService::submit($s, ['item_id' => $u, 'ppic' => 'Int', 'location' => 'PT Integritas', 'planned_install_at' => dueAt(1), 'install_team' => 'Tim', 'target_days' => 5], ureq());
         PqaService::decideInstall($p['id'], true, $adm, ureq());
 
         $r = IntegrityService::check();

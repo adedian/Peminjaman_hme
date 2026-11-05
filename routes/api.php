@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 use App\Controllers\Api\AdminController;
 use App\Controllers\Api\ArchiveController;
+use App\Controllers\Api\DashboardController;
 use App\Controllers\Api\AuthController;
 use App\Controllers\Api\NotificationController;
 use App\Controllers\Api\HealthController;
@@ -13,6 +14,7 @@ use App\Controllers\Api\ReportController;
 use App\Controllers\Api\SyncController;
 use App\Controllers\Api\RequestController;
 use App\Controllers\Api\UserController;
+use App\Controllers\Api\PushController;
 use App\Core\Config;
 use App\Core\Router;
 
@@ -51,6 +53,14 @@ $router->group(['prefix' => '/api/v1'], static function (Router $r): void {
         // Peminjaman — dapat dibaca kedua peran (staff hanya melihat miliknya; dipaksa di LoanService)
         $r->get('/items/available', [RequestController::class, 'availableItems']);
         $r->get('/loans/summary', [RequestController::class, 'summary']);
+        $r->get('/dashboard', [DashboardController::class, 'show']);
+        // Notifikasi push: setiap pengguna hanya mengelola perangkatnya sendiri
+        $r->get('/push/config', [PushController::class, 'config']);
+        $r->post('/push/subscribe', [PushController::class, 'subscribe']);
+        $r->post('/push/unsubscribe', [PushController::class, 'unsubscribe']);
+        $r->get('/push/devices', [PushController::class, 'devices']);
+        $r->post('/push/devices/{id:\d+}/remove', [PushController::class, 'removeDevice']);
+        $r->post('/push/test', [PushController::class, 'test']);
         $r->get('/requests', [RequestController::class, 'index']);
         $r->get('/requests/{id:\d+}', [RequestController::class, 'show']);
 
@@ -114,6 +124,10 @@ $router->group(['prefix' => '/api/v1'], static function (Router $r): void {
             $r->get('/settings', [AdminController::class, 'settings']);
             $r->put('/settings', [AdminController::class, 'updateSettings']);
             $r->post('/settings/test-email', [AdminController::class, 'testEmail']);
+            // Notifikasi push (admin): status, log pengiriman, kirim ulang
+            $r->get('/push/status', [PushController::class, 'status']);
+            $r->get('/push/log', [PushController::class, 'log']);
+            $r->post('/push/log/{id:\d+}/retry', [PushController::class, 'retry']);
         });
 
         // Rekap & laporan Excel (admin)

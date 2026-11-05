@@ -26,9 +26,19 @@
       <span class="hint" data-error-for="install_team"></span>
     </div>
     <div class="field">
+      <label for="pn-when">Tanggal &amp; jam pemasangan</label>
+      <input class="input" id="pn-when" name="planned_install_at" type="datetime-local" required>
+      <span class="hint" data-error-for="planned_install_at">Rencana waktu pasang. Jadwal pencabutan dihitung dari waktu pemasangan yang dikonfirmasi admin.</span>
+    </div>
+    <div class="field">
       <label for="pn-days">Target waktu pasang (hari)</label>
       <input class="input" id="pn-days" name="target_days" type="number" inputmode="numeric" min="1" max="3650" placeholder="mis. 7">
       <span class="hint" data-error-for="target_days"></span>
+    </div>
+    <div class="field">
+      <label for="pn-notes">Catatan <span class="opt">(opsional)</span></label>
+      <textarea class="textarea" id="pn-notes" name="notes" maxlength="2000" placeholder="Informasi tambahan untuk admin"></textarea>
+      <span class="hint" data-error-for="notes"></span>
     </div>
     <button class="btn primary block" type="submit" id="pn-submit">Ajukan Pemasangan</button>
   </form>
@@ -59,6 +69,23 @@
       <label for="pr-team">Tim pencabut</label>
       <input class="input" id="pr-team" name="team" autocomplete="off" maxlength="255" placeholder="Nama anggota tim pencabut">
       <span class="hint" data-error-for="team"></span>
+    </div>
+    <fieldset class="field choice" id="pr-dest">
+      <legend>Tujuan setelah dicabut</legend>
+      <label class="choice-opt"><input type="radio" name="destination" value="office" checked> <span><strong>Kembali ke kantor</strong><small>Unit kembali ke inventaris kantor dan tersedia.</small></span></label>
+      <label class="choice-opt"><input type="radio" name="destination" value="site"> <span><strong>Pindah ke site lain</strong><small>Unit langsung dipasang di site tujuan setelah admin mengonfirmasi.</small></span></label>
+    </fieldset>
+    <div id="pr-site-wrap" hidden>
+      <div class="field">
+        <label for="pr-site">Site tujuan</label>
+        <input class="input" id="pr-site" name="destination_site" autocomplete="off" maxlength="255" placeholder="mis. PT Mitra Jaya">
+        <span class="hint" data-error-for="destination_site"></span>
+      </div>
+      <div class="field">
+        <label for="pr-mdays">Target waktu pasang di site tujuan (hari)</label>
+        <input class="input" id="pr-mdays" name="move_target_days" type="number" inputmode="numeric" min="1" max="3650" placeholder="mis. 7">
+        <span class="hint" data-error-for="move_target_days"></span>
+      </div>
     </div>
     <button class="btn danger block" type="submit" id="pr-submit">Kirim Permintaan Pencabutan</button>
   </form>

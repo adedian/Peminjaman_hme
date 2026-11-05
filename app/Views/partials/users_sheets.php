@@ -24,7 +24,7 @@
     <div class="field" id="f-password-wrap">
       <label for="f-password">Password awal <span class="opt">(opsional)</span></label>
       <input class="input" id="f-password" name="password" type="text" autocomplete="off" maxlength="72" placeholder="Kosongkan agar dibuatkan otomatis">
-      <span class="hint" data-error-for="password">Pengguna wajib menggantinya saat masuk pertama kali.</span>
+      <span class="hint" data-error-for="password">Kosong = dibuatkan otomatis dan ditampilkan sekali.</span>
     </div>
     <button class="btn primary block" type="submit" id="su-submit">Simpan</button>
   </form>
@@ -64,7 +64,7 @@
     <div><small class="sheet-note" id="ss-sub"></small><div class="big" id="ss-title">Password sementara</div></div>
     <div class="secret-box"><code id="ss-pass" aria-live="polite"></code>
       <button class="round-btn accent" type="button" id="ss-copy" aria-label="Salin password"><?= icon('copy') ?></button></div>
-    <p class="sheet-note">Serahkan password ini kepada pengguna. Password <strong>hanya ditampilkan sekali</strong> dan tidak dapat dilihat lagi. Pengguna wajib menggantinya saat masuk.</p>
+    <p class="sheet-note">Serahkan password ini kepada pengguna. Password <strong>hanya ditampilkan sekali</strong> dan tidak dapat dilihat lagi. Pengguna boleh menggantinya sendiri lewat menu Profil kapan saja.</p>
     <button class="btn primary block" type="button" id="ss-done">Selesai</button>
   </div>
 </section>

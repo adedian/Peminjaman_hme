@@ -13,7 +13,7 @@ function eLoanReset(): void
 /** @return array<string,mixed> pengajuan */
 function eSubmit(Client $c, array $itemIds, array $o = []): array
 {
-    $r = $c->api('POST', '/requests', $o + ['item_ids' => $itemIds, 'location' => 'Proyek E2E', 'team' => 'Tim A']);
+    $r = $c->api('POST', '/requests', $o + ['item_ids' => $itemIds, 'due_at' => dueAt(), 'location' => 'Proyek E2E', 'team' => 'Tim A']);
     eq(201, $r['status'], $r['body']);
     return $r['json']['data'];
 }
@@ -88,7 +88,7 @@ t('Mass-assignment ditolak: status/user_id/decided_by/nama barang dari input dia
     $a = e2eLogin('e_staff');
     $other = (int) Database::value("SELECT id FROM users WHERE username = 'e_staff2'");
     $item = iMake(['name' => 'Nama Asli'])['id'];
-    $r = $a->api('POST', '/requests', ['item_ids' => [$item], 'location' => 'Proyek X', 'status' => 'approved', 'user_id' => $other,
+    $r = $a->api('POST', '/requests', ['item_ids' => [$item], 'due_at' => dueAt(), 'location' => 'Proyek X', 'status' => 'approved', 'user_id' => $other,
         'decided_by' => 1, 'item_name_snapshot' => 'Palsu', 'seq_no' => 1, 'legacy_id' => 'HME-0', 'returned_at' => '2020-01-01 00:00:00']);
     eq(201, $r['status'], $r['body']);
     $d = $r['json']['data'];
@@ -138,7 +138,7 @@ t('Alur: ajukan 3 barang → admin melihat → setujui → rebutan ditolak → k
 
     $avail = array_column($b->api('GET', '/items/available')['json']['data'], 'id');
     foreach ([$i1, $i2, $i3] as $i) { ok(!in_array($i, $avail, true), 'barang yang diajukan hilang dari daftar tersedia untuk orang lain'); }
-    $r = $b->api('POST', '/requests', ['item_ids' => [$i2], 'location' => 'Rebutan']);
+    $r = $b->api('POST', '/requests', ['item_ids' => [$i2], 'due_at' => dueAt(), 'location' => 'Rebutan']);
     eq(409, $r['status']); eq('item_unavailable', $r['json']['error']['code']);
     contains('Alat Dua', $r['json']['error']['message']);
 
@@ -153,7 +153,7 @@ t('Alur: ajukan 3 barang → admin melihat → setujui → rebutan ditolak → k
     foreach ([$i1, $i2, $i3] as $i) { eq('Dipinjam', lMaster($i)); }
     eq(409, $admin->api('POST', "/requests/{$req['id']}/approve")['status'], 'tak bisa diproses dua kali');
 
-    $blocked = $a->api('POST', '/requests', ['item_ids' => [iMake()['id']], 'location' => 'Lagi']);
+    $blocked = $a->api('POST', '/requests', ['item_ids' => [iMake()['id']], 'due_at' => dueAt(), 'location' => 'Lagi']);
     eq(409, $blocked['status']); eq('has_active_loan', $blocked['json']['error']['code']);
 
     $first = $req['loans'][0]['id'];
@@ -167,7 +167,7 @@ t('Alur: ajukan 3 barang → admin melihat → setujui → rebutan ditolak → k
     foreach ([$i1, $i2, $i3] as $i) { eq('Tersedia', lMaster($i)); }
     $avail = array_column($b->api('GET', '/items/available')['json']['data'], 'id');
     foreach ([$i1, $i2, $i3] as $i) { ok(in_array($i, $avail, true), 'tersedia lagi'); }
-    eq(201, $b->api('POST', '/requests', ['item_ids' => [$i2], 'location' => 'Sekarang bisa'])['status']);
+    eq(201, $b->api('POST', '/requests', ['item_ids' => [$i2], 'due_at' => dueAt(), 'location' => 'Sekarang bisa'])['status']);
     eLoanReset();
 });
 
@@ -269,7 +269,7 @@ t('Admin: beranda berisi kontainer permohonan; menu Permohonan dengan lencana ju
     eSubmit($a, [iMake()['id']]);
     $home = $admin->get('/');
     eq(200, $home['status']);
-    foreach (['data-role="admin"', 'id="feed-pending"', 'Perlu review', 'href="/requests"', 'Permohonan'] as $n) { contains($n, $home['body'], $n); }
+    foreach (['data-role="admin"', 'id="feed-pending"', 'id="dash"', 'dashboard.js', 'href="/requests"', 'Permohonan'] as $n) { contains($n, $home['body'], $n); }
     ok((bool) preg_match('#href="/requests"[^>]*>.*?Permohonan<span class="count">\d+</span>#s', $home['body']), 'lencana jumlah menunggu');
     $list = $admin->get('/requests?status=pending');
     eq(200, $list['status']);

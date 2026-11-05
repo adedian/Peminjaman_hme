@@ -191,7 +191,7 @@ t('Nyata: akun (hash, wajib ganti, nama dirapikan), barang (+ yatim nonaktif, ka
     // Akun
     $rian = Database::one("SELECT * FROM users WHERE username = 'mgb_rian'");
     ok($rian !== null && password_verify('1234', (string) $rian['password_hash']), 'password angka di-hash dari "1234"');
-    eq(['Rian', 'R', 'staff', 1, 1], [$rian['name'], $rian['initials'], $rian['role'], (int) $rian['must_change_password'], (int) $rian['is_active']]);
+    eq(['Rian', 'R', 'staff', 0, 1], [$rian['name'], $rian['initials'], $rian['role'], (int) $rian['must_change_password'], (int) $rian['is_active']]);
     eq(0, mgCount('users', "username IN ('mgb_boss', '')"));
     eq(2, mgCount('migration_issues', "run_id = ? AND sheet = 'Data_Users' AND category = 'failed'", [$s['run_id']]));
     eq(0, mgCount('activity_logs', "after_json LIKE '%admin-lama%' OR after_json LIKE '%rika123%'"), 'password tidak tercatat');

@@ -308,10 +308,10 @@ t('Kolom turunan active_item_key terisi otomatis sesuai status', function () {
     eq(null, Database::value('SELECT active_item_key FROM loans WHERE id = ?', [$id]));
 });
 
-t('Default: master_status = Tersedia, must_change_password = 1, is_active = 1', function () {
+t('Default: master_status = Tersedia, must_change_password = 0 (V2), is_active = 1', function () {
     $item = mkItem('DEF-1');
     eq('Tersedia', Database::value('SELECT master_status FROM items WHERE id = ?', [$item]));
-    eq(1, (int) Database::value('SELECT must_change_password FROM users WHERE username = ?', ['d_user1']));
+    eq(0, (int) Database::value('SELECT must_change_password FROM users WHERE username = ?', ['d_user1']));
     eq(1, (int) Database::value('SELECT is_active FROM users WHERE username = ?', ['d_user1']));
 });
 

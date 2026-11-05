@@ -59,7 +59,11 @@ final class PqaController
 
     public function remove(Request $request, array $params): Response
     {
-        return Response::ok(PqaService::requestRemoval((int) $params['id'], $request->input('team'), $request->user() ?? [], $request));
+        return Response::ok(PqaService::requestRemoval((int) $params['id'], $request->input('team'), $request->user() ?? [], $request, [
+            'destination'      => $request->input('destination'),
+            'destination_site' => $request->input('destination_site'),
+            'move_target_days' => $request->input('move_target_days'),
+        ]));
     }
 
     public function approve(Request $request, array $params): Response

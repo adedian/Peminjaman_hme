@@ -11,6 +11,7 @@ use App\Core\Session;
 use App\Core\View;
 
 $scripts = View::shared('scripts', []);
+$styles = View::shared('styles', []);
 $sheets = View::shared('sheets', '');
 $minimal = (bool) ($user['must_change_password'] ?? false);   // wajib ganti password → tanpa navigasi
 $isAdmin = ($user['role'] ?? '') === 'admin';
@@ -56,13 +57,16 @@ $toast = Session::pullFlash('toast');
 <meta name="sync-interval" content="<?= (int) config('realtime.interval_ms', 1500) ?>">
 <?php endif; ?>
 <title><?= e($title) ?> — Peminjaman HME</title>
-<link rel="icon" href="<?= e(asset('img/logo-hme.png')) ?>">
+<?php require HME_ROOT . '/app/Views/partials/pwa_head.php'; ?>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="<?= e(asset('css/tokens.css')) ?>">
 <link rel="stylesheet" href="<?= e(asset('css/components.css')) ?>">
 <link rel="stylesheet" href="<?= e(asset('css/app.css')) ?>">
+<?php foreach ($styles as $css): ?>
+<link rel="stylesheet" href="<?= e(asset('css/' . $css)) ?>">
+<?php endforeach; ?>
 </head>
 <body>
 <?= icon_sprite() ?>
@@ -70,7 +74,7 @@ $toast = Session::pullFlash('toast');
 
 <?php if (!$minimal): ?>
   <aside class="sidebar only-desktop" aria-label="Navigasi utama">
-    <div class="brand"><img src="<?= e(asset('img/logo-hme.png')) ?>" alt=""><div><b>Peminjaman HME</b><span><?= $isAdmin ? 'Admin' : 'Staff' ?></span></div></div>
+    <div class="brand"><img src="<?= e(asset('img/logo-mark.png')) ?>" alt=""><div><b>Peminjaman HME</b><span><?= $isAdmin ? 'Admin' : 'Staff' ?></span></div></div>
     <nav>
       <?php foreach ($items as [$key, $path, $label, $ico]): ?>
         <a href="<?= e(url($path)) ?>" data-nav="<?= e($key) ?>"<?= $nav === $key ? ' aria-current="page"' : '' ?>><?= icon($ico) ?><?= e($label) ?><?php if (!empty($badge[$key])): ?><span class="count"><?= (int) $badge[$key] ?></span><?php endif; ?></a>
@@ -87,7 +91,7 @@ $toast = Session::pullFlash('toast');
 
   <main class="main">
     <header class="topbar">
-      <img class="logo only-mobile" src="<?= e(asset('img/logo-hme.png')) ?>" alt="HME">
+      <a class="brandmark only-mobile" href="<?= e(url('/')) ?>" aria-label="Peminjaman HME — Beranda"><img src="<?= e(asset('img/logo-mark.png')) ?>" alt=""><span class="bm-text"><small>Peminjaman</small><b>HME</b></span></a>
       <div class="who"><small><?= $isAdmin ? 'Admin' : 'Staff' ?> · <?= e($user['name'] ?? '') ?></small><strong><?= e($title) ?></strong></div>
       <?php if (!$minimal): ?>
       <a class="icon-btn bell" id="nav-bell" href="<?= e(url('/notifications')) ?>" aria-label="Notifikasi<?= $unread > 0 ? ' (' . $unread . ' belum dibaca)' : '' ?>"<?= $nav === 'notifications' ? ' aria-current="page"' : '' ?>><?= icon('bell') ?><?php if ($unread > 0): ?><span class="bell-count num" data-unread><?= $unread > 99 ? '99+' : $unread ?></span><?php endif; ?></a>
@@ -114,6 +118,7 @@ $toast = Session::pullFlash('toast');
   <div id="flash-toast" hidden data-title="<?= e($toast['title'] ?? '') ?>" data-sub="<?= e($toast['sub'] ?? '') ?>" data-kind="<?= e($toast['kind'] ?? '') ?>"></div>
 <?php endif; ?>
 
+<script src="<?= e(asset('js/pwa.js')) ?>" defer></script>
 <script src="<?= e(asset('js/ui.js')) ?>" defer></script>
 <script src="<?= e(asset('js/api.js')) ?>" defer></script>
 <?php if (!$minimal): ?>

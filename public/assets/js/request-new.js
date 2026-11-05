@@ -102,12 +102,42 @@
 
   $('pick-q').addEventListener('input', function (e) { q = e.target.value.trim(); render(); });
 
+
+  // Batas pengembalian: bawaan besok pukul 17.00 (hanya kenyamanan, bebas diubah); tidak boleh sebelum sekarang
+  (function () {
+    var f = $('f-due');
+    if (!f) { return; }
+    function loc(d) {
+      var p = function (n) { return (n < 10 ? '0' : '') + n; };
+      return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + 'T' + p(d.getHours()) + ':' + p(d.getMinutes());
+    }
+    var now = new Date(), t = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 17, 0);
+    f.min = loc(now);
+    f.value = loc(t);
+    // Pintasan hanya mengisi kolom (jam 17.00 pada hari ke-N); pemohon tetap bebas mengubah tanggal & jam
+    var chips = $('due-chips');
+    if (chips) {
+      chips.addEventListener('click', function (e) {
+        var b = e.target.closest('button[data-days]');
+        if (!b) { return; }
+        var n = new Date(), d = new Date(n.getFullYear(), n.getMonth(), n.getDate() + parseInt(b.getAttribute('data-days'), 10), 17, 0);
+        f.value = loc(d);
+        [].forEach.call(chips.querySelectorAll('button'), function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        f.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+      f.addEventListener('input', function (ev) {
+        if (ev.isTrusted) { [].forEach.call(chips.querySelectorAll('button'), function (x) { x.setAttribute('aria-pressed', 'false'); }); }
+      });
+    }
+  })();
+
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     var ids = Object.keys(selected).map(Number);
     var body = {
       item_ids: ids,
       borrow_date: $('f-date').value,
+      due_at: $('f-due').value,
       location: $('f-loc').value.trim(),
       team: $('f-team').value.trim(),
       notes: $('f-notes').value.trim()
@@ -116,6 +146,8 @@
     if (!ids.length) { $('pick-err').textContent = 'Pilih minimal satu barang.'; $('pick-err').classList.add('err'); }
     if (body.location.length < 2) { local.location = 'Lokasi tujuan wajib diisi.'; }
     if (!body.borrow_date) { local.borrow_date = 'Tanggal pinjam wajib diisi.'; }
+    if (!body.due_at) { local.due_at = 'Batas pengembalian wajib diisi.'; }
+    else if (new Date(body.due_at).getTime() <= Date.now()) { local.due_at = 'Batas pengembalian harus setelah saat ini.'; }
     api.showFieldErrors(form, local);
     if (!ids.length || Object.keys(local).length) {
       if (!ids.length) { $('pick-q').scrollIntoView({ block: 'center', behavior: 'smooth' }); }

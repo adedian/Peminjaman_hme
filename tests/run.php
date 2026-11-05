@@ -27,6 +27,10 @@ putenv('APP_ENV=testing');
 putenv('APP_DEBUG=false');
 putenv('DB_NAME=hme_peminjaman_test');
 putenv('TRUST_PROXY=false');
+// Kunci VAPID KHUSUS TES (tidak pernah dipakai di server sungguhan). Tes memakai transport palsu → tidak ada yang menembak layanan push.
+putenv('VAPID_PUBLIC_KEY=BFaQq7XduxIfeH3MeWMlJz7jCTE0Gctrc8uDP40vAP81VV5ZrcQCgt0I6GI7J6igalbOnRF8gsJ2Of3f23_CVHs');
+putenv('VAPID_PRIVATE_KEY=wqbvgX-e2bYWk7rq9t8kGxZFIwC7RpAUlJ702aUX6WE');
+putenv('VAPID_SUBJECT=mailto:tes@hme.test');
 putenv('MAIL_DRIVER=log');         // email uji ditulis ke <LOG_DIR>/mail.log, tidak pernah dikirim sungguhan
 putenv('LOG_DIR=' . $testLogDir);   // log tes tidak mencampuri log aplikasi
 $testUploadDir = sys_get_temp_dir() . '/hme_test_uploads';
@@ -66,7 +70,7 @@ foreach ($args as $a) {
     }
 }
 
-foreach (['core', 'security', 'database', 'auth', 'users', 'items', 'loans', 'pqa', 'reports', 'notify', 'sync', 'migration', 'integrity', 'backup'] as $c) {
+foreach (['core', 'security', 'database', 'auth', 'users', 'items', 'loans', 'pqa', 'reports', 'notify', 'sync', 'migration', 'integrity', 'backup', 'revisi_v2', 'revisi_v2_pqa', 'revisi_v2_push', 'revisi_v2_sw', 'revisi_v2_sched', 'revisi_v2_dash'] as $c) {
     require __DIR__ . "/cases/{$c}.php";
 }
 if (!$noHttp) {
@@ -82,6 +86,8 @@ if (!$noHttp) {
     require __DIR__ . '/cases/e2e_migration.php';
     require __DIR__ . '/cases/e2e_sweep.php';
     require __DIR__ . '/cases/e2e_ops.php';
+    require __DIR__ . '/cases/e2e_v2.php';
+    require __DIR__ . '/cases/e2e_v2_dash.php';
     TestServer::start($testLogDir);
 }
 

@@ -6,7 +6,7 @@ use App\Core\Database;
 /** @return array<string,mixed> */
 function ePqa(Client $c, int $item, array $o = []): array
 {
-    $r = $c->api('POST', '/pqa', $o + ['item_id' => $item, 'ppic' => 'Naufal', 'location' => 'PT E2E', 'install_team' => 'Rian, Vega', 'target_days' => 7]);
+    $r = $c->api('POST', '/pqa', $o + ['item_id' => $item, 'ppic' => 'Naufal', 'location' => 'PT E2E', 'planned_install_at' => dueAt(1), 'install_team' => 'Rian, Vega', 'target_days' => 7]);
     eq(201, $r['status'], $r['body']);
     return $r['json']['data'];
 }
@@ -46,7 +46,7 @@ t('Peran: staff → semua keputusan admin 403 (data tidak berubah); admin → ak
     eq(['Req Cabut', 3], [qRow($act['id'])['status'], (int) qRow($act['id'])['pending_extension_days']]);
 
     $u3 = iMake(['name' => 'PQA Otorisasi 3', 'is_pqa' => '1'])['id'];
-    foreach ([['/pqa', ['item_id' => $u3, 'ppic' => 'Admin', 'location' => 'PT X', 'install_team' => 'Tim', 'target_days' => 5]],
+    foreach ([['/pqa', ['item_id' => $u3, 'ppic' => 'Admin', 'location' => 'PT X', 'planned_install_at' => dueAt(1), 'install_team' => 'Tim', 'target_days' => 5]],
               ["/pqa/{$act['id']}/extend", ['days' => 2]], ["/pqa/{$act['id']}/remove", ['team' => 'Tim']]] as [$p, $b]) {
         $r = $admin->api('POST', $p, $b);
         eq(403, $r['status'], "admin {$p}"); eq('forbidden', $r['json']['error']['code'], "admin {$p}");
@@ -62,7 +62,7 @@ t('Mass-assignment: status, installed_at, total_days, requested_by, decided_by d
     $staff = e2eLogin('e_staff');
     $other = (int) Database::value("SELECT id FROM users WHERE username = 'e_staff2'");
     $u = iMake(['name' => 'PQA Mass', 'is_pqa' => '1'])['id'];
-    $r = $staff->api('POST', '/pqa', ['item_id' => $u, 'ppic' => 'Naufal', 'location' => 'PT E2E', 'install_team' => 'Tim', 'target_days' => 7,
+    $r = $staff->api('POST', '/pqa', ['item_id' => $u, 'ppic' => 'Naufal', 'location' => 'PT E2E', 'planned_install_at' => dueAt(1), 'install_team' => 'Tim', 'target_days' => 7,
         'status' => 'Terpasang', 'installed_at' => '2020-01-01 00:00:00', 'total_days' => 999, 'requested_by' => $other, 'decided_by' => 1, 'pending_extension_days' => 50, 'removal_team' => 'x']);
     eq(201, $r['status'], $r['body']);
     $row = qRow($r['json']['data']['id']);
@@ -93,7 +93,7 @@ t('Alur: ajukan → admin setujui → staff lain tambah waktu → setujui → re
     $p = ePqa($a, $u, ['target_days' => 7, 'ppic' => 'Naufal']);
     eq('Pending', $p['status']);
     ok(!in_array($u, array_column($b->api('GET', '/pqa/units')['json']['data'], 'id'), true), 'unit hilang dari daftar untuk semua orang');
-    eq('item_unavailable', $b->api('POST', '/requests', ['item_ids' => [$u], 'location' => 'Pinjam biasa'])['json']['error']['code'], 'tak bisa dipinjam biasa');
+    eq('item_unavailable', $b->api('POST', '/requests', ['item_ids' => [$u], 'due_at' => dueAt(), 'location' => 'Pinjam biasa'])['json']['error']['code'], 'tak bisa dipinjam biasa');
 
     $seen = $b->api('GET', "/pqa/{$p['id']}");
     eq(200, $seen['status'], 'staff lain melihat tracker bersama');
@@ -118,7 +118,7 @@ t('Alur: ajukan → admin setujui → staff lain tambah waktu → setujui → re
     eq(['Dicabut', 9], [$done['json']['data']['status'], $done['json']['data']['actual_days']]);
 
     ok(in_array($u, array_column($a->api('GET', '/pqa/units')['json']['data'], 'id'), true), 'unit tersedia lagi');
-    eq(201, $b->api('POST', '/requests', ['item_ids' => [$u], 'location' => 'Sekarang boleh'])['status']);
+    eq(201, $b->api('POST', '/requests', ['item_ids' => [$u], 'due_at' => dueAt(), 'location' => 'Sekarang boleh'])['status']);
     eLoanReset();
 
     $det = $a->api('GET', "/pqa/{$p['id']}")['json']['data'];

@@ -34,7 +34,6 @@ $active = array_filter($users, static fn($u) => $u['is_active']);
       <span class="sub" style="display:block">@<?= e($u['username']) ?> · <?= $u['role'] === 'admin' ? 'Admin' : 'Staff' ?><?= ($u['open_loans'] ?? 0) > 0 ? ' · ' . (int) $u['open_loans'] . ' pinjaman' : '' ?></span>
     </span>
     <?php if (!$u['is_active']): ?><span class="chip cancelled">Nonaktif</span>
-    <?php elseif ($u['must_change_password']): ?><span class="chip pending">Password sementara</span>
     <?php else: ?><span class="chip done">Aktif</span><?php endif; ?>
   </button>
 <?php endforeach; ?>

@@ -56,13 +56,14 @@ final class PqaNotifier
                     $body = $actorName . ' · ' . $unit . ' di ' . $loc . ' (tim cabut: ' . $pqa['removal_team'] . ')';
                     break;
                 case 'approved':
-                    $body = $unit . ' di ' . $loc . ' kini Terpasang (target ' . $pqa['target_days'] . ' hari)';
+                    $body = $unit . ' di ' . $loc . ' kini Terpasang (target ' . $pqa['target_days'] . ' hari) · jadwal cabut ' . \App\Helpers\Idn::dateTime($pqa['due_at'] ?? null);
                     break;
                 case 'extension_approved':
-                    $body = $unit . ' di ' . $loc . ' · target menjadi ' . $pqa['target_days'] . ' hari';
+                    $body = $unit . ' di ' . $loc . ' · target menjadi ' . $pqa['target_days'] . ' hari · jadwal cabut baru ' . \App\Helpers\Idn::dateTime($pqa['due_at'] ?? null);
                     break;
                 case 'removal_approved':
-                    $body = $unit . ' di ' . $loc . ' telah dicabut' . ($pqa['actual_days'] === null ? '' : ' (' . $pqa['actual_days'] . ' hari)');
+                    $body = $unit . ' di ' . $loc . ' telah dicabut' . ($pqa['actual_days'] === null ? '' : ' (' . $pqa['actual_days'] . ' hari)')
+                        . (($pqa['removal_destination'] ?? null) === 'site' ? ' · pindah ke ' . $pqa['destination_site'] : ($pqa['removal_destination'] === 'office' ? ' · kembali ke kantor' : ''));
                     break;
                 default:
                     $body = $unit . ' di ' . $loc;
@@ -82,6 +83,10 @@ final class PqaNotifier
                         $to[] = (int) $req;
                     }
                 }
+            }
+            // Keputusan admin disinkronkan juga ke admin lain (jadwal pasang/perpanjangan/pencabutan harus sama di semua pihak)
+            if (in_array($event, ['approved', 'extension_approved', 'removal_approved'], true)) {
+                $to = array_merge($to, NotificationService::adminIds());
             }
             NotificationService::notify($to, 'pqa.' . $event, self::TITLES[$event], $body, $link, $actorId);
         } catch (Throwable $e) {

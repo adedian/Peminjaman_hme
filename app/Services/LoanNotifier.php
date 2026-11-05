@@ -48,6 +48,19 @@ final class LoanNotifier
      */
     public static function decided(array $request, string $decision, array $loanIds = [], ?int $actorId = null): void
     {
+        if ($decision === 'approved') {
+            // "Barang dipinjam" → admin (selain admin yang menyetujui): siapa, apa, dan batas pengembaliannya
+            self::guard('approved_admin', static function () use ($request, $loanIds, $actorId): void {
+                $ids = $loanIds === [] ? array_map(static fn(array $l): int => (int) $l['id'], $request['loans'] ?? []) : $loanIds;
+                sort($ids);
+                NotificationService::notify(
+                    NotificationService::adminIds(), 'loan.approved', 'Barang dipinjam',
+                    $request['user']['name'] . ': ' . implode(', ', self::names($request, $ids)) . ' · batas kembali ' . \App\Helpers\Idn::dateTime($request['due_at'] ?? null),
+                    '/requests?open=' . (int) $request['id'], $actorId,
+                    ['dedupe_key' => 'loan.approved:batch:' . (int) $request['id'] . ':' . implode('-', $ids)]
+                );
+            });
+        }
         self::guard('decided', static function () use ($request, $decision, $loanIds, $actorId): void {
             $names = self::names($request, $loanIds);
             $ok = $decision === 'approved';

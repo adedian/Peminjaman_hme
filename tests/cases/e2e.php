@@ -338,7 +338,9 @@ t('Tambah pengguna: vektor serangan pada input → ditolak/di-escape, tidak ada 
         $r = $a->api('POST', '/users', $body);
         ok($r['status'] < 500, "#{$i} status {$r['status']}");
     }
-    eq(1, (int) Database::value("SELECT must_change_password FROM users WHERE username = 'ok.name'"), 'mass-assignment: must_change_password tidak bisa disetel dari input');
+    Database::run("UPDATE users SET must_change_password = 0 WHERE username = 'ok.name'");
+    eq(1, (int) Database::value("SELECT is_active FROM users WHERE username = 'ok.name'"), 'mass-assignment: is_active tidak bisa disetel dari input');
+    eq(0, (int) Database::value("SELECT must_change_password FROM users WHERE username = 'ok.name'"));
     eq(1, (int) Database::value("SELECT is_active FROM users WHERE username = 'ok.name'"));
     ok(Database::value('SELECT COUNT(*) FROM users') > 3, 'tabel users utuh');
 });
@@ -379,11 +381,19 @@ t('Halaman Pengguna (admin): daftar, kontrol, sheet, dan menu Pengguna tampil', 
 // ---------------------------------------------------------------------------
 section('E2E — wajib ganti password & pencabutan sesi');
 
-t('Akun baru (password sementara): diarahkan ke ganti password, API terkunci, lalu bebas setelah mengganti', function () {
+t('Penjaga paksa-ganti (penanda disetel manual di DB): diarahkan ke ganti password, API terkunci, lalu bebas setelah mengganti', function () {
     e2eReset();
     Database::run("DELETE FROM users WHERE username = 'e_temp'");
     $a = e2eAdmin();
     $tmp = $a->api('POST', '/users', ['username' => 'e_temp', 'name' => 'Pengguna Temp', 'role' => 'staff'])['json']['data']['temporary_password'];
+    $own = $a->api('POST', '/users', ['username' => 'e_temp0', 'name' => 'Tanpa Paksa', 'role' => 'staff', 'password' => 'Awal-Uji-4321'])['json']['data'];
+    eq(false, $own['user']['must_change_password'], 'V2: akun baru tidak dipaksa ganti password');
+    $c0 = new Client();
+    $c0->bootstrapGuest();
+    $r0 = $c0->request('POST', '/login', null, ['_csrf' => $c0->csrf, 'username' => 'e_temp0', 'password' => 'Awal-Uji-4321', 'role' => 'staff']);
+    eq('/', loc($r0), 'login pertama langsung ke beranda');
+    eq(200, $c0->get('/')['status']);
+    Database::run("UPDATE users SET must_change_password = 1 WHERE username = 'e_temp'");
 
     $c = new Client();
     $c->bootstrapGuest();
@@ -444,7 +454,7 @@ t('Admin menonaktifkan staff → sesi aktif staff gugur SEKETIKA dan tidak bisa 
     eq(200, (new Client())->loginApi('e_staff', 'Rahasia-Uji-1')['status']);
 });
 
-t('Admin mereset password → sesi staff gugur; password sementara memaksa ganti; lama tidak berlaku', function () {
+t('Admin mereset password → sesi staff gugur; password baru langsung berlaku tanpa paksa ganti; lama tidak berlaku', function () {
     e2eReset();
     $staff = (int) Database::value("SELECT id FROM users WHERE username = 'e_staff'");
     $a = e2eAdmin();
@@ -457,8 +467,8 @@ t('Admin mereset password → sesi staff gugur; password sementara memaksa ganti
     $n = new Client();
     $lr = $n->loginApi('e_staff', $tmp);
     eq(200, $lr['status']);
-    eq(true, $lr['json']['data']['user']['must_change_password']);
-    eq('/profile/password', $lr['json']['data']['redirect']);
+    eq(false, $lr['json']['data']['user']['must_change_password']);
+    eq('/', $lr['json']['data']['redirect']);
 });
 
 t('Admin diturunkan perannya → hak admin hilang seketika di sesi yang berjalan', function () {
@@ -488,14 +498,14 @@ function runCli(array $args, array $env = [], string $stdin = ''): array
     return ['code' => proc_close($p), 'out' => $out, 'err' => $err];
 }
 
-t('create-admin --generate: admin dibuat, wajib ganti password, dapat login; duplikat ditolak', function () {
+t('create-admin --generate: admin dibuat, tanpa paksa ganti password, dapat login; duplikat ditolak', function () {
     clearAttempts();
     Database::run("DELETE FROM users WHERE username = 'cli_admin'");
     $r = runCli(['--username=cli_admin', '--name=CLI Admin', '--generate']);
     eq(0, $r['code'], $r['err']);
     ok((bool) preg_match('/hanya ditampilkan sekali\): (\S{12})/', $r['out'], $m), 'password sementara tampil sekali');
     $u = AuthService::attempt('cli_admin', $m[1], 'admin', areq('10.7.0.1'));
-    eq(true, $u['must_change_password']);
+    eq(false, $u['must_change_password']);
     eq('CA', Database::value("SELECT initials FROM users WHERE username = 'cli_admin'"));
     $dup = runCli(['--username=cli_admin', '--name=CLI Admin', '--generate']);
     eq(1, $dup['code']);

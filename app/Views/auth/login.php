@@ -8,8 +8,8 @@ $role = ($old['role'] ?? 'staff') === 'admin' ? 'admin' : 'staff';
 <?= icon_sprite() ?>
 <main class="auth-wrap">
   <div class="auth-card">
-    <img class="auth-logo" src="<?= e(asset('img/logo-hme.png')) ?>" alt="Logo HME">
-    <h1>Sistem Peminjaman</h1>
+    <img class="auth-logo" src="<?= e(asset('img/logo-mark.png')) ?>" alt="Logo Peminjaman HME">
+    <h1>Peminjaman HME</h1>
     <p class="auth-sub">PT Hexa Multi Energi</p>
 
     <form method="post" action="<?= e(url('/login')) ?>" class="auth-form" autocomplete="on" novalidate>

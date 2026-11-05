@@ -69,7 +69,7 @@ final class UserService
                     'name'                 => $data['name'],
                     'initials'             => self::initialsFor((string) $data['name']),
                     'role'                 => $data['role'],
-                    'must_change_password' => 1,
+                    'must_change_password' => 0,   // revisi V2: password tidak dipaksa diganti
                 ]);
                 ChangeFeed::emit('user', $id, 'created', (int) $actor['id']);
                 return $id;
@@ -160,7 +160,7 @@ final class UserService
     }
 
     /**
-     * Reset password oleh admin: membuat password sementara, wajib diganti saat login berikutnya,
+     * Reset password oleh admin: membuat password baru untuk diserahkan ke pengguna (tidak dipaksa diganti)
      * dan semua sesi aktif pengguna itu berakhir.
      *
      * @param array<string,mixed> $actor
@@ -175,7 +175,7 @@ final class UserService
                 throw new HttpException(409, 'self_action', 'Gunakan menu Profil untuk mengganti password Anda sendiri.');
             }
             Database::run(
-                'UPDATE users SET password_hash = ?, must_change_password = 1, auth_version = auth_version + 1 WHERE id = ?',
+                'UPDATE users SET password_hash = ?, must_change_password = 0, auth_version = auth_version + 1 WHERE id = ?',
                 [password_hash($plain, PASSWORD_DEFAULT), $id]
             );
             Database::run('DELETE FROM login_attempts WHERE username = (SELECT username FROM users WHERE id = ?)', [$id]);

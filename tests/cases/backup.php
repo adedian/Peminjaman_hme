@@ -47,7 +47,7 @@ t('Backup → ubah/hapus data → pulihkan: semua tabel & foto kembali persis; k
         $s = ['id' => aUser('bk_staff'), 'role' => 'staff', 'name' => 'Bk Staff', 'username' => 'bk_staff'];
         $a = iMake(['name' => "Barang \"kutip\" 'apos' \\ garis\nbaru — 日本語 😀"])['id'];
         $b = iMake(['name' => 'Barang B'])['id'];
-        $r1 = LoanService::submit($s, ['item_ids' => [$a, $b], 'location' => "Lokasi;DROP TABLE users; --\r\nbaris2", 'note' => null], ureq());
+        $r1 = LoanService::submit($s, ['item_ids' => [$a, $b], 'due_at' => dueAt(), 'location' => "Lokasi;DROP TABLE users; --\r\nbaris2", 'note' => null], ureq());
         LoanService::approveRequest($r1['id'], $adm, ureq());
         Database::run("INSERT INTO settings (key_name, value) VALUES ('bk_bin', ?)", ["a'b\\c\n;--"]);
 

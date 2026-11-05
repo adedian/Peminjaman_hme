@@ -36,7 +36,10 @@
     b.appendChild(document.createTextNode(label));
     return b;
   }
-  function chip(status) { var s = STATUS[status] || STATUS.Pending; return h('span', 'chip ' + s.cls, s.label); }
+  function chip(status, overdue) {
+    if (overdue) { return h('span', 'chip rejected', 'Lewat jadwal cabut'); }
+    var s = STATUS[status] || STATUS.Pending; return h('span', 'chip ' + s.cls, s.label);
+  }
   function parse(s) {
     var m = /^(\d{4})-(\d{2})-(\d{2})(?: (\d{2}):(\d{2}))?/.exec(String(s || ''));
     return m ? new Date(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0)) : null;
@@ -45,6 +48,38 @@
     var d = parse(s);
     return d ? d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
   }
+  function fmtDT(s) {
+    var d = parse(s);
+    return d ? d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' +
+      d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace(':', '.') : '—';
+  }
+  // Sisa waktu dikirim server (detik) lalu dihitung maju dengan jam monotonik browser (tidak bergantung jam perangkat)
+  function remainText(sec) {
+    var late = sec < 0, a = Math.abs(sec), d = Math.floor(a / 86400), hr = Math.floor((a % 86400) / 3600), mn = Math.floor((a % 3600) / 60);
+    var t = d > 0 ? d + ' hari ' + hr + ' jam' : (hr > 0 ? hr + ' jam ' + mn + ' mnt' : Math.max(mn, 1) + ' mnt');
+    return (late ? 'Lewat jadwal ' : 'Sisa ') + t;
+  }
+  function countdown(sec) {
+    var s = h('span', 'countdown' + (sec < 0 ? ' late' : ''));
+    s.setAttribute('data-rem', String(sec));
+    s.setAttribute('data-t0', String(Math.floor(performance.now() / 1000)));
+    s.textContent = remainText(sec);
+    return s;
+  }
+  setInterval(function () {
+    var now = Math.floor(performance.now() / 1000);
+    document.querySelectorAll('.countdown[data-rem]').forEach(function (e) {
+      var sec = parseInt(e.getAttribute('data-rem'), 10) - (now - parseInt(e.getAttribute('data-t0'), 10));
+      e.textContent = remainText(sec);
+      e.classList.toggle('late', sec < 0);
+    });
+  }, 30000);
+  function destText(p) {
+    if (p.removal_destination === 'site') { return 'Pindah ke ' + p.destination_site + (p.move_target_days ? ' (target ' + p.move_target_days + ' hari)' : ''); }
+    if (p.removal_destination === 'office') { return 'Kembali ke kantor'; }
+    return null;
+  }
+  var EVENT = { installed: 'Dipasang', moved_out: 'Dicabut & dipindah', moved_in: 'Terpasang di site tujuan', removed_office: 'Kembali ke kantor', removed: 'Dicabut' };
   function thumb(item) {
     var t = h('span', 'thumb sq');
     if (item.thumb_url) { var i = document.createElement('img'); i.src = item.thumb_url; i.alt = ''; i.loading = 'lazy'; t.appendChild(i); }
@@ -101,9 +136,17 @@
     meta.appendChild(h('div', 'id', p.item.name));
     meta.appendChild(h('div', 'sub num', p.item.code + ' · ' + p.location));
     top.appendChild(meta);
-    top.appendChild(chip(p.status));
+    top.appendChild(chip(p.status, p.overdue));
     card.appendChild(top);
 
+    if (p.due_at && (p.status === 'Terpasang' || p.status === 'Req Cabut')) {
+      var sch = h('div', 'facts due-row');
+      var sd = h('div'); sd.appendChild(h('small', '', 'Jadwal cabut'));
+      var ss = h('strong', '', fmtDT(p.due_at));
+      if (p.remaining_seconds !== null) { ss.appendChild(document.createTextNode(' · ')); ss.appendChild(countdown(p.remaining_seconds)); }
+      sd.appendChild(ss); sch.appendChild(sd);
+      card.appendChild(sch);
+    }
     if (p.actual_days !== null && (p.status === 'Terpasang' || p.status === 'Req Cabut')) { card.appendChild(progress(p)); }
     if (p.status === 'Dicabut') {
       var done = h('div', 'facts');
@@ -119,9 +162,10 @@
     if (p.extension_pending_days > 0 && !ADMIN) {
       card.appendChild(h('div', 'pqa-note', 'Menunggu persetujuan tambah waktu +' + p.extension_pending_days + ' hari'));
     }
-    if (p.status === 'Req Cabut' && !ADMIN) { card.appendChild(h('div', 'pqa-note', 'Menunggu persetujuan pencabutan · Tim: ' + (p.removal_team || '—'))); }
+    if (p.status === 'Req Cabut' && !ADMIN) { card.appendChild(h('div', 'pqa-note', 'Menunggu persetujuan pencabutan · Tim: ' + (p.removal_team || '—') + (destText(p) ? ' · ' + destText(p) : ''))); }
+    if (p.status === 'Pending' && p.previous_installation_id) { card.appendChild(h('div', 'pqa-note warn', 'Pindahan dari pemasangan sebelumnya — menunggu konfirmasi pemasangan di site tujuan')); }
     if (p.status === 'Pending' && !ADMIN) { card.appendChild(h('div', 'pqa-note', 'Menunggu persetujuan admin')); }
-    if (ADMIN && p.status === 'Req Cabut') { card.appendChild(h('div', 'pqa-note warn', 'Permintaan pencabutan · Tim pencabut: ' + (p.removal_team || '—'))); }
+    if (ADMIN && p.status === 'Req Cabut') { card.appendChild(h('div', 'pqa-note warn', 'Permintaan pencabutan · Tim pencabut: ' + (p.removal_team || '—') + (destText(p) ? ' · ' + destText(p) : ''))); }
 
     var act = actions(p);
     if (act) { card.appendChild(act); }
@@ -142,16 +186,20 @@
       left.appendChild(h('small', '', p.item.code));
       var big = h('div', 'big', p.item.name); big.id = 'pq-title'; left.appendChild(big);
       head.appendChild(left);
-      var c = chip(p.status); c.className = 'chip on-dark'; head.appendChild(c);
+      var c = chip(p.status, p.overdue); c.className = 'chip on-dark'; head.appendChild(c);
       body.appendChild(head);
       var g = h('div', 'kv');
-      [['Lokasi', p.location, 1], ['PPIC', p.ppic], ['Tim pemasang', p.install_team], ['Diajukan', fmt(p.submitted_at)], ['Dipasang', fmt(p.installed_at)],
-       ['Target', p.target_days + ' hari'], ['Aktual', p.actual_days === null ? '—' : p.actual_days + ' hari'], ['Dicabut', p.removed_at ? fmt(p.removed_at) : null],
-       ['Tim pencabut', p.removal_team, 1], ['Diajukan oleh', p.requested_by ? p.requested_by.name : null, 1]].forEach(function (x) {
+      [['Lokasi', p.location, 1], ['PPIC', p.ppic], ['Tim pemasang', p.install_team], ['Diajukan', fmtDT(p.submitted_at)], ['Rencana pasang', p.planned_install_at ? fmtDT(p.planned_install_at) : null],
+       ['Dipasang', p.installed_at ? fmtDT(p.installed_at) : null], ['Jadwal cabut', p.due_at ? fmtDT(p.due_at) : null],
+       ['Target', p.target_days + ' hari'], ['Aktual', p.actual_days === null ? '—' : p.actual_days + ' hari'], ['Dicabut', p.removed_at ? fmtDT(p.removed_at) : null],
+       ['Tim pencabut', p.removal_team, 1], ['Tujuan setelah dicabut', destText(p), 1], ['Catatan', p.notes, 1], ['Diajukan oleh', p.requested_by ? p.requested_by.name : null, 1]].forEach(function (x) {
         if (x[1] === null || x[1] === undefined || x[1] === '' || x[1] === '—' && x[0] === 'Dipasang') { return; }
         var d = h('div', x[2] ? 'full' : ''); d.appendChild(h('small', '', x[0])); d.appendChild(h('strong', '', x[1])); g.appendChild(d);
       });
       body.appendChild(g);
+      if (p.remaining_seconds !== null && p.due_at) {
+        var cl = h('p', 'countdown-line'); cl.appendChild(countdown(p.remaining_seconds)); body.appendChild(cl);
+      }
       if (p.history && p.history.length) {
         body.appendChild(h('hr'));
         body.appendChild(h('small', 'sheet-note', 'Riwayat permintaan'));
@@ -161,12 +209,28 @@
           var m = h('div', 'il-meta');
           m.appendChild(h('b', '', x.type === 'extend' ? 'Tambah waktu +' + x.days + ' hari' : 'Pencabutan · ' + (x.team || '—')));
           m.appendChild(h('span', '', (x.requested_by || '—') + ' · ' + fmt(x.requested_at)));
+          if (x.type === 'extend' && x.status === 'approved' && x.old_due_at && x.new_due_at) {
+            m.appendChild(h('span', '', 'Jadwal cabut: ' + fmtDT(x.old_due_at) + ' → ' + fmtDT(x.new_due_at)));
+          }
           line.appendChild(m);
           var st = { pending: 'Menunggu', approved: 'Disetujui', rejected: 'Ditolak' }[x.status] || x.status;
           line.appendChild(h('span', 'chip ' + ({ pending: 'pending', approved: 'done', rejected: 'rejected' }[x.status] || ''), st));
           tl.appendChild(line);
         });
         body.appendChild(tl);
+      }
+      if (p.locations && p.locations.length) {
+        body.appendChild(h('hr'));
+        body.appendChild(h('small', 'sheet-note', 'Riwayat lokasi unit'));
+        var lt = h('div', 'items-col');
+        p.locations.forEach(function (x) {
+          var line = h('div', 'item-line');
+          var m = h('div', 'il-meta');
+          m.appendChild(h('b', '', (EVENT[x.event] || x.event) + ' · ' + x.location + (x.to_location ? ' → ' + x.to_location : '')));
+          m.appendChild(h('span', '', fmtDT(x.occurred_at) + (x.confirmed_by ? ' · ' + x.confirmed_by : '') + (x.note ? ' · ' + x.note : '')));
+          line.appendChild(m); lt.appendChild(line);
+        });
+        body.appendChild(lt);
       }
       var close = btn('dark-btn block', 'Tutup'); close.setAttribute('data-close-sheet', ''); close.style.justifyContent = 'center';
       body.appendChild(close);
@@ -198,6 +262,10 @@
     newBtn.addEventListener('click', function () {
       var form = $('pqa-form'); form.reset(); api.showFieldErrors(form, {});
       $('pn-ppic').value = cfg.getAttribute('data-name') || '';
+      (function () {
+        var pad = function (n) { return (n < 10 ? '0' : '') + n; }, n = new Date();
+        $('pn-when').value = n.getFullYear() + '-' + pad(n.getMonth() + 1) + '-' + pad(n.getDate()) + 'T' + pad(n.getHours()) + ':' + pad(n.getMinutes());
+      })();
       var sel = $('pn-unit'); sel.textContent = ''; $('pn-submit').disabled = true;
       var hint = $('pn-unit-hint'); hint.textContent = 'Memuat unit…'; hint.classList.remove('err');
       ui.openSheet('sheet-pqa-new');
@@ -229,7 +297,9 @@
       e.preventDefault();
       var form = e.target, local = {};
       var body = { item_id: parseInt($('pn-unit').value, 10) || 0, ppic: $('pn-ppic').value.trim(), location: $('pn-loc').value.trim(),
-                   install_team: $('pn-team').value.trim(), target_days: parseInt($('pn-days').value, 10) || 0 };
+                   install_team: $('pn-team').value.trim(), target_days: parseInt($('pn-days').value, 10) || 0,
+                   planned_install_at: $('pn-when').value, notes: $('pn-notes').value.trim() };
+      if (!body.planned_install_at) { local.planned_install_at = 'Tanggal & jam pemasangan wajib diisi.'; }
       if (!body.item_id) { local.item_id = 'Pilih unit PQA.'; }
       if (body.ppic.length < 2) { local.ppic = 'PPIC wajib diisi.'; }
       if (body.location.length < 2) { local.location = 'Lokasi pemasangan wajib diisi.'; }
@@ -272,6 +342,7 @@
   function openRm(p) {
     rmFor = p; var form = $('pqa-rm-form'); form.reset(); api.showFieldErrors(form, {});
     $('pr-sub').textContent = p.item.name + ' · ' + p.location;
+    $('pr-site-wrap').hidden = true;
     ui.openSheet('sheet-pqa-rm');
   }
   $('pqa-rm-form').addEventListener('submit', function (e) {
@@ -279,12 +350,25 @@
     var form = e.target, t = $('pr-team').value.trim();
     if (t.length < 2) { api.showFieldErrors(form, { team: 'Tim pencabut wajib diisi.' }); return; }
     var b = $('pr-submit'); b.disabled = true;
-    api.post('/pqa/' + rmFor.id + '/remove', { team: t }).then(function () {
+    var dest = form.querySelector('input[name="destination"]:checked').value, payload = { team: t, destination: dest };
+    if (dest === 'site') {
+      payload.destination_site = $('pr-site').value.trim();
+      payload.move_target_days = parseInt($('pr-mdays').value, 10) || 0;
+      var le = {};
+      if (payload.destination_site.length < 2) { le.destination_site = 'Site tujuan wajib diisi.'; }
+      if (payload.move_target_days < 1) { le.move_target_days = 'Isi target lebih dari 0 hari.'; }
+      if (Object.keys(le).length) { api.showFieldErrors(form, le); b.disabled = false; return; }
+    }
+    api.post('/pqa/' + rmFor.id + '/remove', payload).then(function () {
       b.disabled = false; ui.closeSheets(true); ui.toast('Permintaan pencabutan terkirim', 'Menunggu persetujuan admin', 'ok'); reload();
     }).catch(function (err) {
       b.disabled = false;
       if (err.fields && Object.keys(err.fields).length) { api.showFieldErrors(form, err.fields); } else { ui.closeSheets(true); reload(); errToast(err); }
     });
+  });
+
+  $('pqa-rm-form').addEventListener('change', function (e) {
+    if (e.target && e.target.name === 'destination') { $('pr-site-wrap').hidden = e.target.value !== 'site'; }
   });
 
   // ---------------------------------------------------------------- daftar ---------------

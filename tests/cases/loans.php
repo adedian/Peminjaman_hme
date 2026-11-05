@@ -24,7 +24,7 @@ function lAdmin(): array
 /** @param array<string,mixed> $o */
 function lSubmit(array $user, array $itemIds, array $o = []): array
 {
-    return LoanService::submit($user, $o + ['item_ids' => $itemIds, 'location' => 'Proyek Uji'], ureq());
+    return LoanService::submit($user, $o + ['item_ids' => $itemIds, 'due_at' => dueAt(), 'location' => 'Proyek Uji'], ureq());
 }
 
 /** Hitungan per status: buang yang nol, urutkan kunci (agar perbandingan tidak bergantung urutan). @param array<string,int> $c */
@@ -106,7 +106,7 @@ t('Validasi pengajuan: tanpa barang, duplikat, terlalu banyak, tipe salah, lokas
     $a = lItem();
     $before = (int) Database::value('SELECT COUNT(*) FROM loans');
     $f = fn(array $in) => lErr(fn() => LoanService::submit($u, $in, ureq()))->fields();
-    $ok = ['item_ids' => [$a], 'location' => 'Lokasi Ok'];
+    $ok = ['item_ids' => [$a], 'due_at' => dueAt(), 'location' => 'Lokasi Ok'];
     ok(isset($f(['item_ids' => []] + $ok)['item_ids']), 'kosong');
     ok(isset($f(['item_ids' => 'x'] + $ok)['item_ids']), 'bukan array');
     ok(isset($f(['item_ids' => [$a, $a]] + $ok)['item_ids']), 'duplikat');

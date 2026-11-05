@@ -22,3 +22,7 @@ php tests/run.php            # 300+ tes (tes HTTP butuh Apache lokal; --no-http 
 
 ## Perintah operasional (`tools/`)
 `check-env` · `create-admin` · `backup` · `restore` · `maintenance` · `maintenance-mode` · `check-integrity` · `send-mail` · `migrate-legacy` · `build-package`
+
+## Revisi V2 (dashboard, batas pengembalian, PQA berjadwal, PWA & notifikasi push)
+Lihat `docs/15-revisi-v2-implementasi.md` dan `docs/16-pwa-notifikasi-push.md` (cara mengaktifkan notifikasi HP, keputusan, dan status verifikasi).
+Wajib di server: **HTTPS**, kunci VAPID (`php tools/generate-vapid.php --write`), dan cron penjadwal `*/5 * * * * php tools/scheduler.php`.

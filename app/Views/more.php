@@ -27,7 +27,7 @@
   </a>
   <a class="row" href="<?= e(url('/settings')) ?>">
     <span class="thumb sq"><?= icon('gear') ?></span>
-    <span class="meta"><span class="title" style="display:block">Pengaturan</span><span class="sub" style="display:block">Email penerima notifikasi admin</span></span>
+    <span class="meta"><span class="title" style="display:block">Pengaturan</span><span class="sub" style="display:block">Notifikasi HP, pengingat, dan email admin</span></span>
     <?= icon('arrow') ?>
   </a>
   <a class="row" href="<?= e(url('/profile')) ?>">

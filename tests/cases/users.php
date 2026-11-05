@@ -48,19 +48,19 @@ function uErr(callable $fn): HttpException
 // ---------------------------------------------------------------------------
 section('Kelola pengguna — tambah');
 
-t('Tambah staff: inisial otomatis, wajib ganti password, password sementara dibuat sistem & berfungsi', function () {
+t('Tambah staff: inisial otomatis, tanpa paksa ganti password, password sementara dibuat sistem & berfungsi', function () {
     $admin = uSetup();
     Database::run("DELETE FROM users WHERE username = 'budi.s'");
     $r = UserService::create(['username' => 'budi.s', 'name' => 'Budi Santoso', 'role' => 'staff'], $admin, ureq());
     eq('BS', $r['user']['initials']);
     eq('staff', $r['user']['role']);
-    eq(true, $r['user']['must_change_password']);
+    eq(false, $r['user']['must_change_password']);
     eq(true, $r['user']['is_active']);
     $tmp = (string) $r['temporary_password'];
     eq(12, strlen($tmp));
     ok(!array_key_exists('password_hash', $r['user']));
     $u = AuthService::attempt('budi.s', $tmp, 'staff', areq('10.8.0.9'));
-    eq(true, $u['must_change_password']);
+    eq(false, $u['must_change_password']);
     eq(1, (int) Database::value("SELECT COUNT(*) FROM change_events WHERE entity_type = 'user' AND action = 'created'"));
 });
 
@@ -211,9 +211,9 @@ t('Reset password: password lama mati, sementara berfungsi & wajib diganti, sesi
     $r = UserService::resetPassword($id, $admin, ureq());
     $tmp = $r['temporary_password'];
     eq(12, strlen($tmp));
-    eq(true, $r['user']['must_change_password']);
+    eq(false, $r['user']['must_change_password']);
     eq(401, loginFails('u_staff1', 'Rahasia-Uji-1')->status(), 'password lama tidak berlaku');
-    eq(true, AuthService::attempt('u_staff1', $tmp, 'staff', areq('10.8.0.1'))['must_change_password'], 'kunci dibersihkan & sementara berfungsi');
+    eq(false, AuthService::attempt('u_staff1', $tmp, 'staff', areq('10.8.0.1'))['must_change_password'], 'kunci dibersihkan & password baru berfungsi tanpa paksa ganti');
     eq(401, uErr(fn() => (new AuthMiddleware())->handle(new Request('GET', '/api/v1/me'), fn() => Response::ok()))->status(), 'sesi lama gugur');
     lacks($tmp, (string) json_encode(Database::all('SELECT * FROM activity_logs')), 'password sementara tidak boleh masuk audit');
     ok(Database::value("SELECT COUNT(*) FROM activity_logs WHERE action = 'user.password_reset'") >= 1);

@@ -78,7 +78,7 @@ try {
         'name'                 => $name,
         'initials'             => UserService::initialsFor($name),
         'role'                 => 'admin',
-        'must_change_password' => 1,
+        'must_change_password' => 0,
     ]);
     AuditService::log('user.created', null, 'user', $id, null, ['username' => $username, 'role' => 'admin', 'via' => 'cli']);
 } catch (Throwable $e) {
@@ -86,7 +86,7 @@ try {
     exit(1);
 }
 
-echo "Admin '{$username}' dibuat (ID {$id}). Wajib mengganti password saat login pertama.\n";
+echo "Admin '{$username}' dibuat (ID {$id}).\n";
 if ($generated) {
     echo "Password sementara (hanya ditampilkan sekali): {$plain}\n";
 }
