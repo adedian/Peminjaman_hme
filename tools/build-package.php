@@ -48,6 +48,9 @@ $includeDirs = ['app', 'database', 'public', 'routes', 'tools', 'deploy', 'vendo
 $includeFiles = ['composer.json', 'composer.lock', '.env.example'];
 $skipRel = static function (string $rel): bool {
     return str_starts_with($rel, 'docs/test-reports')
+        // Dokumen perencanaan internal memuat email/nomor kontak asli → tidak perlu ada di server
+        || preg_match('#^docs/(01|14|15)-#', $rel) === 1
+        || preg_match('#(^|/)\.github(/|$)#', $rel) === 1
         || preg_match('#(^|/)\.(git|svn|idea|vscode)(/|$)#', $rel) === 1
         || preg_match('#(^|/)\.env$#', $rel) === 1
         || preg_match('#\.(log|bak|swp)$#', $rel) === 1
