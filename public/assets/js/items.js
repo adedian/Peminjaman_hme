@@ -24,6 +24,7 @@
       if (ok) { shown++; }
     });
     $('item-empty').hidden = shown !== 0 || !grid.children.length;
+    $('item-count').textContent = grid.children.length ? 'Menampilkan ' + shown + ' barang' : '';
   }
   $('item-filter').addEventListener('input', function (e) { f.q = e.target.value.trim().toLowerCase(); applyFilters(); });
   $('cat-filter').addEventListener('change', function (e) { f.cat = e.target.value; applyFilters(); });

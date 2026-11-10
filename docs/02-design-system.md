@@ -69,3 +69,16 @@ Dipakai: bahasa visual (kartu putih membulat, bottom nav pil gelap + FAB oranye,
 - Interaksi hanya demonstrasi (`design/js/ui.js`); belum terhubung database.
 - Font Inter dimuat dari Google Fonts; versi produksi akan menyimpan file font secara lokal agar tidak bergantung internet.
 - 16 dari 19 foto barang masih privat di Drive, jadi mockup hanya memakai 3 foto publik.
+
+---
+
+## Pembaruan UI/UX — kompak & kontras kontrol terbalik (2026-11-10)
+
+Hanya CSS/markup tampilan; tidak ada perubahan logika, API, maupun database.
+
+- **Tipografi (sama di HP, tablet, desktop):** `--fs-xs` 10px (label/metadata/badge), `--fs-sm` 12px (isi, tombol, input, sel tabel), `--fs-md` 13px (judul baris/bagian), `--fs-lg` 16px (judul halaman), `--fs-xl` 20px (angka statistik). Khusus iOS Safari, input tetap 16px agar halaman tidak ter-zoom saat fokus.
+- **Breakpoint tunggal:** 600px (tablet) dan 1024px (desktop; sidebar + tabel). Selain itu hanya `max-width: 400px` untuk grid 2 kolom → 1 kolom di HP sempit.
+- **Spacing/ukuran:** gutter 12/20/28px, tinggi kontrol 40px (36px di desktop), bilah navigasi bawah 52px menempel di bawah layar (tidak lagi melayang), kartu memakai garis tipis alih-alih bayangan tebal, radius 8/12/16.
+- **Kontrol (checkbox, radio, switch, tombol mode gelap, segmented):** token `--ctl-*` — tema gelap → kontrol putih/terang, tema terang → kontrol hitam/gelap; posisi ON/OFF dibedakan oleh posisi tombol bundar, warna track, dan centang. Permukaan yang selalu gelap (`.sheet`, `.sidebar`) memakai token terang sendiri.
+- **Master Barang:** daftar kompak berbaris (foto kecil, nama, kode · kategori, badge status) di HP; tabel berkolom proporsional (Barang / Kategori / Kode ref / Status) di ≥1024px. Elemen `.inv-card` + `#item-grid` dipertahankan agar `items.js` dan pembaruan realtime tetap bekerja.
+- Warna `--muted` digelapkan (#666 di tema terang) agar teks 10px tetap terbaca (kontras ≥ 5:1).

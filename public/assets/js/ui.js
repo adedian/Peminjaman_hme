@@ -77,13 +77,19 @@
   // Tema terang/gelap (disimpan per perangkat; aman bila storage diblokir)
   var root = document.documentElement;
   try { var saved = localStorage.getItem('hme-theme'); if (saved === 'dark' || saved === 'light') { root.dataset.theme = saved; } } catch (e) { /* abaikan */ }
+  function isDark() { return root.dataset.theme ? root.dataset.theme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function syncThemeSwitches() {
+    document.querySelectorAll('[data-theme-toggle][role="switch"]').forEach(function (b) { b.setAttribute('aria-checked', isDark() ? 'true' : 'false'); });
+  }
   document.querySelectorAll('[data-theme-toggle]').forEach(function (b) {
     b.addEventListener('click', function () {
-      var dark = root.dataset.theme ? root.dataset.theme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-      root.dataset.theme = dark ? 'light' : 'dark';
+      root.dataset.theme = isDark() ? 'light' : 'dark';
       try { localStorage.setItem('hme-theme', root.dataset.theme); } catch (e) { /* abaikan */ }
+      syncThemeSwitches();
     });
   });
+  syncThemeSwitches();
+  if (window.matchMedia) { try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncThemeSwitches); } catch (e) { /* abaikan */ } }
 
   // Toast dari server (flash) dan dari halaman sebelumnya (sessionStorage)
   var flash = document.getElementById('flash-toast');

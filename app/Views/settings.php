@@ -28,7 +28,7 @@ View::share('scripts', ['settings.js']);
   <h2 class="card-title"><?= icon('bell') ?>Notifikasi HP &amp; pengingat</h2>
   <p class="recap-note">Notifikasi muncul di layar HP/PC lewat <b>aplikasi terpasang (PWA)</b>, walau aplikasi sedang ditutup. Setiap pengguna mengaktifkannya sendiri di menu <b>Profil</b> pada perangkatnya. Pengingat dijalankan oleh cron server.</p>
   <div class="facts-grid" id="push-status"><div class="skeleton" style="height:64px"></div></div>
-  <label class="choice-opt" for="push-enabled"><input type="checkbox" id="push-enabled" disabled> <span><strong>Kirim notifikasi ke HP</strong><small>Matikan untuk menghentikan semua push. Notifikasi di lonceng aplikasi tetap tampil.</small></span></label>
+  <label class="switch-row" for="push-enabled"><span class="sw-text"><strong>Kirim notifikasi ke HP</strong><small>Matikan untuk menghentikan semua push. Notifikasi di lonceng aplikasi tetap tampil.</small></span><input type="checkbox" role="switch" id="push-enabled" disabled></label>
   <div class="field">
     <label for="push-loan-hours">Pengingat jatuh tempo peminjaman (jam sebelumnya)</label>
     <input class="input" id="push-loan-hours" name="loan_reminder_hours" type="number" inputmode="numeric" min="1" max="168" disabled>

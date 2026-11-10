@@ -12,30 +12,38 @@ View::share('sheets', View::render('partials/items_sheets', ['categories' => $ca
 
 $active = count(array_filter($items, static fn($i) => $i['is_active']));
 ?>
-<div class="section-head">
-  <h2><?= $active ?> barang aktif<?php $hiddenN = count($items) - $active; ?><?= $hiddenN > 0 ? ' · ' . $hiddenN . ' tersembunyi (lihat filter Tersembunyi)' : '' ?></h2>
+<?php
+$catName = [];
+foreach ($categories as $c) { $catName[(int) $c['id']] = $c['name']; }
+$hiddenN = count($items) - $active;
+?>
+<div class="inv-top">
+  <div>
+    <h2><?= $active ?> barang aktif<?= $hiddenN > 0 ? ' · ' . $hiddenN . ' tersembunyi' : '' ?></h2>
+    <span class="sub" id="item-count" aria-live="polite"></span>
+  </div>
   <button class="btn primary" type="button" id="btn-add-item"><?= icon('plus') ?>Tambah</button>
 </div>
 
-<label class="search"><?= icon('search') ?><span class="sr-only">Cari barang</span><input type="search" id="item-filter" placeholder="Cari nama, ID, atau kode ref" autocomplete="off"></label>
-
-<div class="filters">
+<div class="inv-tools">
+  <label class="search"><?= icon('search') ?><span class="sr-only">Cari barang</span><input type="search" id="item-filter" placeholder="Cari nama, ID, ref" autocomplete="off"></label>
+  <select class="select" id="cat-filter" aria-label="Filter kategori">
+    <option value="">Semua kategori</option>
+    <?php foreach ($categories as $c): ?><option value="<?= (int) $c['id'] ?>"><?= e($c['name']) ?></option><?php endforeach; ?>
+  </select>
   <div class="seg" role="group" aria-label="Filter status" id="status-filter">
     <button type="button" data-status="" aria-pressed="true">Aktif</button>
     <button type="button" data-status="Tersedia" aria-pressed="false">Tersedia</button>
     <button type="button" data-status="Dipinjam" aria-pressed="false">Dipinjam</button>
     <button type="button" data-status="off" aria-pressed="false">Tersembunyi</button>
   </div>
-  <select class="select" id="cat-filter" aria-label="Filter kategori">
-    <option value="">Semua kategori</option>
-    <?php foreach ($categories as $c): ?><option value="<?= (int) $c['id'] ?>"><?= e($c['name']) ?></option><?php endforeach; ?>
-  </select>
 </div>
 
 <?php if ($items === []): ?>
   <div class="card"><div class="empty"><span class="e-ico"><?= icon('box') ?></span><strong>Belum ada barang</strong><p>Tambahkan barang pertama dengan tombol Tambah.</p></div></div>
 <?php endif; ?>
-
+<div class="inv-table"<?= $items === [] ? ' hidden' : '' ?>>
+  <div class="inv-head" aria-hidden="true"><span></span><span>Barang</span><span>Kategori</span><span>Kode ref</span><span>Status</span></div>
 <div class="inv-grid" id="item-grid">
 <?php foreach ($items as $i): ?>
   <button class="inv-card<?= $i['is_active'] ? '' : ' is-off' ?>" type="button"<?= $i['is_active'] ? '' : ' hidden' ?>
@@ -50,13 +58,17 @@ $active = count(array_filter($items, static fn($i) => $i['is_active']));
           data-state="<?= $i['is_active'] ? e($i['master_status']) : 'off' ?>">
     <span class="inv-photo">
       <?php if ($i['thumb_url'] !== null): ?>
-        <img src="<?= e($i['thumb_url']) ?>" alt="" loading="lazy" decoding="async" width="360" height="270">
+        <img src="<?= e($i['thumb_url']) ?>" alt="" loading="lazy" decoding="async" width="72" height="72">
       <?php else: ?>
         <?= icon('image') ?>
       <?php endif; ?>
     </span>
-    <span class="inv-name"><?= e($i['name']) ?></span>
-    <span class="inv-code"><?= e($i['code']) ?><?= $i['finance_ref'] !== null && $i['finance_ref'] !== '' ? ' · Ref ' . e($i['finance_ref']) : '' ?></span>
+    <span class="inv-main">
+      <span class="inv-name"><?= e($i['name']) ?></span>
+      <span class="inv-code"><?= e($i['code']) ?><?php if (isset($catName[(int) $i['category_id']])): ?><span class="inv-codecat"><span class="sep">·</span><?= e($catName[(int) $i['category_id']]) ?></span><?php endif; ?></span>
+    </span>
+    <span class="inv-cat"><?= e($catName[(int) $i['category_id']] ?? '—') ?></span>
+    <span class="inv-ref"><?= $i['finance_ref'] !== null && $i['finance_ref'] !== '' ? e($i['finance_ref']) : '—' ?></span>
     <span class="inv-chips">
       <?php if (!$i['is_active']): ?><span class="chip cancelled">Tersembunyi</span>
       <?php elseif ($i['master_status'] === 'Dipinjam'): ?><span class="chip active">Dipinjam</span>
@@ -65,5 +77,6 @@ $active = count(array_filter($items, static fn($i) => $i['is_active']));
     </span>
   </button>
 <?php endforeach; ?>
+</div>
 </div>
 <p class="empty-filter" id="item-empty" hidden>Tidak ada barang yang cocok dengan pencarian.</p>

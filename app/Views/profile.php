@@ -73,7 +73,7 @@ $err = static fn(string $k): string => isset($errors[$k]) ? (string) $errors[$k]
 </form>
 <?php else: ?>
 <section class="card stack mobile-only-block" aria-label="Akun">
-  <button class="btn ghost block" type="button" data-theme-toggle><?= icon('moon') ?>Ganti tema terang/gelap</button>
+  <button class="switch-row" type="button" role="switch" aria-checked="false" data-theme-toggle><span class="sw-lead"><?= icon('moon') ?>Mode gelap</span><span class="switch-ui" aria-hidden="true"></span></button>
   <form method="post" action="<?= e(url('/logout')) ?>"><?= csrf_field() ?>
     <button class="btn danger block" type="submit"><?= icon('logout') ?>Keluar</button>
   </form>

@@ -81,7 +81,7 @@ $toast = Session::pullFlash('toast');
       <?php endforeach; ?>
     </nav>
     <div class="me">
-      <button class="btn block side-btn" type="button" data-theme-toggle><?= icon('moon') ?>Ganti tema</button>
+      <button class="switch-row" type="button" role="switch" aria-checked="false" data-theme-toggle><span class="sw-lead"><?= icon('moon') ?>Mode gelap</span><span class="switch-ui" aria-hidden="true"></span></button>
       <form method="post" action="<?= e(url('/logout')) ?>"><?= csrf_field() ?>
         <button class="btn block side-btn" type="submit"><?= icon('logout') ?>Keluar</button>
       </form>

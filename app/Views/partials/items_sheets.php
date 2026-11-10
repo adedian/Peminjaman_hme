@@ -38,7 +38,7 @@
       <input class="input" id="f-ref" name="finance_ref" autocomplete="off" maxlength="100" placeholder="mis. BK 05/20">
       <span class="hint" data-error-for="finance_ref"></span>
     </div>
-    <label class="check"><input type="checkbox" id="f-pqa" name="is_pqa"> Unit PQA (muncul di Tracker PQA)</label>
+    <label class="switch-row" for="f-pqa"><span class="sw-text"><strong>Unit PQA</strong><small>Muncul di Tracker PQA</small></span><input type="checkbox" role="switch" id="f-pqa" name="is_pqa"></label>
     <span class="hint" data-error-for="is_pqa"></span>
 
     <button class="btn primary block" type="submit" id="si-submit">Simpan</button>

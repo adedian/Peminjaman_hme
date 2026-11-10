@@ -28,9 +28,9 @@ View::share('sheets', View::render('partials/requests_sheets', [], null));
 </header>
 
 <div class="dash" id="dash" data-role="<?= e($user['role']) ?>" data-base="<?= e(url('')) ?>" aria-busy="true" aria-live="polite">
-  <div class="skeleton" style="height:56px"></div>
-  <div class="skeleton" style="height:96px"></div>
-  <div class="skeleton" style="height:200px"></div>
+  <div class="skeleton" style="height:44px"></div>
+  <div class="skeleton" style="height:72px"></div>
+  <div class="skeleton" style="height:160px"></div>
 </div>
 
 <?php if ($isAdmin): ?>
