@@ -32,8 +32,8 @@ final class PwaController
             'scope'            => url('/'),
             'display'          => 'standalone',
             'orientation'      => 'portrait',
-            'background_color' => '#141414',
-            'theme_color'      => '#1A1A1A',
+            'background_color' => '#12132B',
+            'theme_color'      => '#1C1E45',
             'categories'       => ['business', 'productivity'],
             'icons'            => [
                 ['src' => $icon('icon-192.png'), 'sizes' => '192x192', 'type' => 'image/png', 'purpose' => 'any'],

@@ -32,7 +32,7 @@
 a.kpi:hover { box-shadow: var(--shadow-md); }
 .kpi-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .kpi-label { font-size: var(--fs-xs); font-weight: var(--fw-medium); color: var(--muted); }
-.kpi-ico { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 7px; background: var(--surface-2); color: var(--ink-2); flex: none; }
+.kpi-ico { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 9px; background: var(--surface); color: var(--accent-strong); flex: none; box-shadow: var(--shadow-xs); }
 .kpi-ico .ico { width: 13px; height: 13px; }
 .kpi-value { font-size: var(--fs-xl); line-height: 1.15; font-weight: var(--fw-bold); letter-spacing: -.02em; margin-top: 2px; }
 .kpi-sub { font-size: var(--fs-xs); color: var(--muted); overflow-wrap: anywhere; }
@@ -70,7 +70,7 @@ a.kpi:hover { box-shadow: var(--shadow-md); }
 .donut .ring-bg { fill: none; stroke: var(--surface-2); stroke-width: 16; }
 .donut .ring { fill: none; stroke-width: 16; transition: stroke-dasharray .6s var(--ease); }
 .donut .seg-0, .sw.seg-0 { stroke: var(--success); background: var(--success); }
-.donut .seg-1, .sw.seg-1 { stroke: var(--accent); background: var(--accent); }
+.donut .seg-1, .sw.seg-1 { stroke: var(--warm-solid); background: var(--warm-solid); }
 .donut .seg-2, .sw.seg-2 { stroke: var(--info); background: var(--info); }
 .donut .ring { background: none; }
 .donut-n { font-size: 24px; font-weight: 700; fill: var(--ink); font-family: var(--font); }

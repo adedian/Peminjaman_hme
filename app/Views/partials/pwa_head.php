@@ -1,7 +1,7 @@
 <?php /** Tag <head> bersama untuk PWA (dipakai layout & layout_app). */ ?>
 <link rel="manifest" href="<?= e(url('/manifest.webmanifest')) ?>">
-<meta name="theme-color" content="#F2F2F2" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0E0E0E" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#E3E5F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12132B" media="(prefers-color-scheme: dark)">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Peminjaman HME">
