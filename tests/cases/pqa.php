@@ -107,15 +107,17 @@ t('BR-19/BR-29: unit dengan PQA aktif, loan pending/approved, atau status Dipinj
         eq(409, $e->status(), $st); eq('item_unavailable', $e->errorCode(), $st);
     }
     // loan pending / approved
-    $a = qUnit('PQA Dipesan'); $l = lSubmit($s, [$a]);
+    // (unit berflag PQA tak bisa lagi dipinjam; pinjaman yang sudah ada dibuat dari barang biasa lalu diberi flag — data warisan)
+    $a = qUnit('PQA Dipesan'); Database::run('UPDATE items SET is_pqa = 0 WHERE id = ?', [$a]);
+    $l = lSubmit($s, [$a]); Database::run('UPDATE items SET is_pqa = 1 WHERE id = ?', [$a]);
     eq('item_unavailable', qErr(fn() => qSubmit($v, $a))->errorCode(), 'loan pending');
     LoanService::approveRequest($l['id'], $adm, ureq());
     eq('item_unavailable', qErr(fn() => qSubmit($v, $a))->errorCode(), 'loan approved');
     LoanService::returnRequest($l['id'], $s, ureq());
     ok(qSubmit($v, $a)['id'] > 0, 'setelah dikembalikan unit boleh dipasang');
-    // sebaliknya: unit PQA terpasang tidak bisa dipinjam
+    // sebaliknya: unit PQA tidak bisa dipinjam biasa (kategori PQA hanya lewat Tracker PQA)
     $b = qUnit('PQA Terpasang Pinjam'); qInstalled($s, $adm, $b);
-    eq('item_unavailable', qErr(fn() => lSubmit($v, [$b]))->errorCode(), 'PQA aktif tidak bisa dipinjam biasa');
+    eq(422, qErr(fn() => lSubmit($v, [$b]))->status(), 'unit PQA tidak bisa dipinjam biasa'); // 
     lReset($s, $v);
 });
 

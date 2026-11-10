@@ -48,7 +48,7 @@ final class LoanService
         $rows = Database::all(
             "SELECT i.id, i.code, i.name, i.photo_path, i.is_pqa, c.name AS category_name
              FROM items i JOIN categories c ON c.id = i.category_id
-             WHERE i.is_active = 1 AND i.master_status = 'Tersedia'
+             WHERE i.is_active = 1 AND i.is_pqa = 0 AND i.master_status = 'Tersedia'   -- unit PQA hanya lewat Tracker PQA
                AND NOT EXISTS (SELECT 1 FROM loans l WHERE l.item_id = i.id AND l.status IN ('pending','approved'))
                AND NOT EXISTS (SELECT 1 FROM pqa_installations p WHERE p.item_id = i.id AND p.status IN ('Pending','Terpasang','Req Cabut'))
              ORDER BY c.sort_order, i.name, i.id"
@@ -191,6 +191,9 @@ final class LoanService
                         if (!isset($items[$id])) {
                             throw new HttpException(422, 'validation_failed', 'Data yang dikirim belum valid.', ['item_ids' => 'Ada barang yang tidak ditemukan.']);
                         }
+                        if ((int) $items[$id]['is_pqa'] === 1) {
+                            throw new HttpException(422, 'validation_failed', 'Data yang dikirim belum valid.', ['item_ids' => 'Unit PQA tidak dapat dipinjam; pasang lewat Tracker PQA.']);
+                        }
                         if (!AvailabilityService::isFree($items[$id])) {
                             $bad[] = (string) $items[$id]['name'];
                         }
@@ -301,6 +304,9 @@ final class LoanService
                 $items = AvailabilityService::lockItems([$old, $new], $loanId);
                 if (!isset($items[$new])) {
                     throw new HttpException(422, 'validation_failed', 'Data yang dikirim belum valid.', ['item_id' => 'Barang tidak ditemukan.']);
+                }
+                if ((int) $items[$new]['is_pqa'] === 1) {
+                    throw new HttpException(422, 'validation_failed', 'Data yang dikirim belum valid.', ['item_id' => 'Unit PQA tidak dapat dipinjam; pasang lewat Tracker PQA.']);
                 }
                 if (!AvailabilityService::isFree($items[$new])) {
                     throw self::unavailable([(string) $items[$new]['name']]);

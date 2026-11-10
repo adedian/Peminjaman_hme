@@ -93,7 +93,7 @@ t('Alur: ajukan → admin setujui → staff lain tambah waktu → setujui → re
     $p = ePqa($a, $u, ['target_days' => 7, 'ppic' => 'Naufal']);
     eq('Pending', $p['status']);
     ok(!in_array($u, array_column($b->api('GET', '/pqa/units')['json']['data'], 'id'), true), 'unit hilang dari daftar untuk semua orang');
-    eq('item_unavailable', $b->api('POST', '/requests', ['item_ids' => [$u], 'due_at' => dueAt(), 'location' => 'Pinjam biasa'])['json']['error']['code'], 'tak bisa dipinjam biasa');
+    eq(422, $b->api('POST', '/requests', ['item_ids' => [$u], 'due_at' => dueAt(), 'location' => 'Pinjam biasa'])['status'], 'unit PQA tak bisa dipinjam biasa');
 
     $seen = $b->api('GET', "/pqa/{$p['id']}");
     eq(200, $seen['status'], 'staff lain melihat tracker bersama');
@@ -118,7 +118,7 @@ t('Alur: ajukan → admin setujui → staff lain tambah waktu → setujui → re
     eq(['Dicabut', 9], [$done['json']['data']['status'], $done['json']['data']['actual_days']]);
 
     ok(in_array($u, array_column($a->api('GET', '/pqa/units')['json']['data'], 'id'), true), 'unit tersedia lagi');
-    eq(201, $b->api('POST', '/requests', ['item_ids' => [$u], 'due_at' => dueAt(), 'location' => 'Sekarang boleh'])['status']);
+    eq(422, $b->api('POST', '/requests', ['item_ids' => [$u], 'due_at' => dueAt(), 'location' => 'Tetap tidak boleh'])['status'], 'unit PQA tidak pernah masuk peminjaman biasa');
     eLoanReset();
 
     $det = $a->api('GET', "/pqa/{$p['id']}")['json']['data'];

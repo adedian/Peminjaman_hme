@@ -157,7 +157,7 @@ t('BR-03/BR-29: barang tidak tersedia ditolak — pending orang lain, nonaktif, 
     $held = lItem('Tertahan'); lSubmit($v, [$held]);
     $off = lItem('Nonaktif'); \App\Services\ItemService::setActive($off, false, iActor(), ureq());
     $busy = lItem('Dipinjam'); Database::run("UPDATE items SET master_status = 'Dipinjam' WHERE id = ?", [$busy]);
-    $pqa = iMake(['is_pqa' => '1', 'name' => 'PQA Terpasang'])['id']; mkPqa($pqa, 'Terpasang');
+    $pqa = iMake(['name' => 'PQA Terpasang'])['id']; mkPqa($pqa, 'Terpasang');   // tanpa flag is_pqa: yang diuji adalah pemasangan aktif (data lama/warisan)
     $free = lItem('Bebas');
 
     foreach ([$held => 'Tertahan', $off => 'Nonaktif', $busy => 'Dipinjam', $pqa => 'PQA Terpasang'] as $id => $name) {
@@ -167,6 +167,25 @@ t('BR-03/BR-29: barang tidak tersedia ditolak — pending orang lain, nonaktif, 
         eq(0, (int) Database::value("SELECT COUNT(*) FROM loans WHERE user_id = ? AND item_id = ?", [$u['id'], $free]), 'barang bebas TIDAK ikut terajukan');
     }
     eq(422, lErr(fn() => lSubmit($u, [99999999]))->status(), 'barang tidak ada');
+});
+
+t('Unit berflag PQA tidak muncul di daftar pinjam & ditolak (422) saat diajukan/ditukar; hanya lewat Tracker PQA', function () {
+    $u = lStaff('l_staff1'); $v = lStaff('l_staff2'); lReset($u, $v);
+    $pqa = iMake(['is_pqa' => '1', 'name' => 'Unit PQA Bebas'])['id'];
+    $biasa = lItem('Barang Biasa');
+    $ids = array_column(\App\Services\LoanService::availableItems(), 'id');
+    ok(!in_array($pqa, $ids, true), 'unit PQA tidak ada di daftar pinjam');
+    ok(in_array($biasa, $ids, true), 'barang biasa tetap ada');
+    $e = lErr(fn() => lSubmit($u, [$biasa, $pqa]));
+    eq(422, $e->status()); ok(isset($e->fields()['item_ids']), 'error pada item_ids');
+    eq(0, (int) Database::value('SELECT COUNT(*) FROM loans WHERE item_id IN (?, ?)', [$biasa, $pqa]), 'semua-atau-tidak-sama-sekali');
+    // tukar unit pada pengajuan pending ke unit PQA → ditolak
+    $r = lSubmit($u, [$biasa]);
+    $e2 = lErr(fn() => \App\Services\LoanService::swapItem((int) $r['loans'][0]['id'], $pqa, $u, ureq()));
+    eq(422, $e2->status());
+    lReset($u, $v);
+    // sebaliknya unit PQA tetap tersedia untuk pemasangan di Tracker PQA
+    ok(in_array($pqa, array_column(\App\Services\PqaService::availableUnits(), 'id'), true));
 });
 
 t('Penghitung nomor urut: tidak pernah ganda, melompati data yang lebih tinggi (mis. hasil impor)', function () {
