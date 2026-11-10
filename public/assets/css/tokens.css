@@ -8,7 +8,7 @@
      ≥ 600px   tablet
      ≥ 1024px  desktop   (sidebar + tabel)
 
-   Hierarki tipografi (sama di HP, tablet, dan desktop — isi = 12px):
+   Hierarki tipografi (HP & tablet; desktop ≥1024px: --fs-xs naik ke 12 agar semua teks ≥ 12px):
      --fs-xs   10   label, metadata, badge, teks pendukung
      --fs-sm   12   isi: baris daftar, tombol, sel tabel, input
      --fs-md   13   judul baris/kartu, judul bagian
@@ -108,7 +108,15 @@
 }
 /* Desktop: pointer halus → kontrol lebih rendah */
 @media (min-width: 1024px) {
-  :root { --gutter: 28px; --content-max: 1080px; --tap: 36px; --ctl-h: 36px; }
+  :root {
+    --gutter: 28px; --content-max: 1080px; --tap: 36px; --ctl-h: 36px;
+    /* Tampilan website (desktop): semua teks minimal 12px */
+    --fs-xs: 0.75rem;    /* 12 */
+    --fs-sm: 0.75rem;    /* 12 */
+    --fs-md: 0.8125rem;  /* 13 */
+    --fs-lg: 1rem;       /* 16 */
+    --fs-xl: 1.375rem;   /* 22 */
+  }
 }
 /* iOS Safari memperbesar halaman bila font input < 16px → khusus iOS, input tetap 16px. */
 @supports (-webkit-touch-callout: none) {

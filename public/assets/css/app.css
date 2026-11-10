@@ -98,8 +98,8 @@ a.row { color: inherit; }
   .inv-tools .seg { margin: 0; padding: 0; flex-wrap: wrap; }   /* layar lebar: chip boleh turun baris, tanpa margin negatif */
 }
 @media (min-width: 1024px) {
-  .inv-tools { grid-template-columns: minmax(240px, 340px) 200px minmax(0, 1fr); }
-  .inv-tools .seg { grid-column: auto; }
+  .inv-tools { grid-template-columns: minmax(160px, 1fr) 170px auto; }
+  .inv-tools .seg { grid-column: auto; flex-wrap: nowrap; }
 }
 
 .inv-table { background: var(--surface); border-radius: var(--r-md); box-shadow: var(--shadow-sm); overflow: hidden; }

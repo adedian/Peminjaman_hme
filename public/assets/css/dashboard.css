@@ -113,6 +113,11 @@ a.kpi:hover { box-shadow: var(--shadow-md); }
 @media (min-width: 1024px) {
   .dgrid.g-trend { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); }
 }
+@media (min-width: 1024px) {
+  .donut { width: 140px; height: 140px; }
+  .donut-l { font-size: 12px; }
+  .chart .axis { font-size: 12px; }
+}
 @media (prefers-reduced-motion: reduce) {
   .live::before, .ln, .donut .ring, .hbar-track span, .kpi, .attn-row { animation: none; transition: none; }
 }
