@@ -17,7 +17,7 @@ Status: **selesai dan teruji di lingkungan uji** (PHP 8.3 + MariaDB 10.11, simul
 **Temuan keamanan dari tes & sudah diperbaiki:** koneksi PDO mengizinkan multi-statement; berkas backup yang diubah bisa menyelipkan `INSERT …; DROP TABLE …` dalam satu baris. Pemulihan kini memakai koneksi dengan `MYSQL_ATTR_MULTI_STATEMENTS=false` (hanya berefek bila diberikan saat koneksi dibuat — `setAttribute()` sesudahnya tidak berefek di PHP 8.3), memvalidasi tiap baris terhadap daftar pernyataan yang dikenal, dan memverifikasi SHA-256 `database.sql` dari manifest.
 
 ## 2. Persyaratan server
-- PHP ≥ 8.0 (diuji 8.0.30 dan 8.3.6) dengan ekstensi `pdo_mysql mbstring fileinfo gd zip openssl json ctype xml xmlreader`.
+- PHP ≥ 8.0 (diuji 8.0.30 dan 8.3.6; XAMPP lokal kini PHP 8.3.36 — sintaks seluruh file + rute tanpa login diperiksa 13 Nov 2026) dengan ekstensi `pdo_mysql mbstring fileinfo gd zip openssl json ctype xml xmlreader`.
 - MySQL 8 / MariaDB 10.4+ (utf8mb4). MySQL 8 sungguhan **belum** diuji — hanya MariaDB.
 - Apache 2.4 (`mod_rewrite`, `mod_headers`) atau Nginx + PHP-FPM. **HTTPS wajib** (cookie `Secure`, HSTS).
 - Cron (untuk backup & pembersihan). Akses SSH sangat membantu; tanpa SSH tetap bisa lewat cPanel (lihat §4).

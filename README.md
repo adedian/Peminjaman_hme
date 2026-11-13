@@ -1,6 +1,6 @@
 # Peminjaman HME
 
-Sistem peminjaman barang & tracker PQA PT Hexa Multi Energi (PHP 8 + MySQL/MariaDB), pengganti aplikasi Google Apps Script lama.
+Sistem peminjaman barang & tracker PQA PT Hexa Multi Energi (PHP 8 + MySQL/MariaDB), pengganti aplikasi Google Apps Script lama. **Versi PHP:** ≥ 8.0 (diuji 8.0.30 dan 8.3.6); XAMPP lokal kini memakai **PHP 8.3.36** (diperiksa 13 Nov 2026, lihat `docs/12-tahap-8-deployment.md`).
 
 ## Mulai cepat (pengembangan, XAMPP)
 ```bash
